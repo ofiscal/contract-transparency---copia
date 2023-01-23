@@ -9,7 +9,7 @@ import pandas as pd
 # the way they are now,
 # or only defined in the function below that uses them?
 pathToData = r"data/SECOP_II_-_Contratos_Electr_nicos.csv"
-subsetsize=5000
+subsetsize=10000
 
 def secop2_general (
     subsetsize = subsetsize, # Indices into (subsetting) the data.
@@ -50,7 +50,12 @@ def secop_for_prediction(
       pathToData,
       nrows = subsetsize,
       decimal = ".",)
-    
+    data ["Valor del Contrato"] = (
+      data["Valor del Contrato"]
+      . apply ( lambda x:
+                float(x.replace(",","")) )
+      . apply( lambda x:
+               x if x < 4e10 else 4e10 ) )
     
     
     return data

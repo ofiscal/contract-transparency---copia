@@ -12,6 +12,8 @@ def main():
     path_to_result=r"data\resultados"
     subsetsize=10000
     max_length=200
+    mean=163740447
+    ssd=1716771980
     #loading the cleaned dataset
     data_pred=cleaning.secop_for_prediction(pathToData=pathToData)
     #entrenar los modelos o continuar su entrenamiento
@@ -24,6 +26,7 @@ def main():
         tokenizer_json=tokenizer.to_json()
         with io.open(path_to_models+"tokenizer.json","w",encoding="utf-8") as f:
             f.write(json.dumps(tokenizer_json,ensure_ascii=False))
+        print(mean, " ",ssd)
     else:
         #call the pre trained models
         model_rn=keras.models.load_model(path_to_models+"\model_rn.h5")
@@ -37,7 +40,7 @@ def main():
     #we padd them to make the sequences of equal length
     padded=pad_sequences(sequences,maxlen=max_length)
     data_pred["rn_predict"]=model_rn.predict(x=padded)
-    data_pred["rn_denormalized"]=model_rn["rn_predict"].apply(lambda x: x*ssd-mean)
+    data_pred["rn_denormalized"]=data_pred["rn_predict"].apply(lambda x: x*ssd-mean)
     data_pred.to_excel(path_to_result+r"\results2.xlsx")
     
     
