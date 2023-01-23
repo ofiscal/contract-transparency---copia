@@ -14,19 +14,21 @@ def main():
     #loading the cleaned dataset
     data_pred=cleaning.secop_for_prediction(pathToData=pathToData)
     #entrenar los modelos o continuar su entrenamiento
-    if True:
+    if False:
         data_train=cleaning.secop2_general(pathToData =pathToData)
         model_rn,tokenizer=recurrent.recurrent_train(
             X=data_train["Descripcion del Proceso"],
             Y=data_train["Valor del Contrato"])
         model_rn.save(path_to_models+"\model1_rn.h5") 
         tokenizer_json=tokenizer.to_json()
-        with io.open("tokenizer.json","w",encoding="utf-8") as f:
+        with io.open(path_to_models+"tokenizer.json","w",encoding="utf-8") as f:
             f.write(json.dumps(tokenizer_json,ensure_ascii=False))
     else:
         #call the pre trained models
         model_rn=keras.models.load_model(path_to_models+"\model_rn.h5")
-        tokenizer=tokenizer_from_json.load(path_to_models+"\tokenizer.json")
+        file=open(path_to_models+r"\tokenizer.json")
+        pre_token = json.load(file)   
+        tokenizer=tokenizer_from_json(pre_token)
     #predict using the models
     
     #we generate series from the description text using the tokens instead of word
