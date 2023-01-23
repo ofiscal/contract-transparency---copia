@@ -9,6 +9,7 @@ import io
 def main():
     path_to_models=r"trainedmodels"
     pathToData = r"data/sucio/SECOP_II_-_Contratos_Electr_nicos.csv"
+    path_to_result=r"data\resultados"
     subsetsize=100000
     max_length=200
     #loading the cleaned dataset
@@ -36,7 +37,7 @@ def main():
     #we padd them to make the sequences of equal length
     padded=pad_sequences(sequences,maxlen=max_length)
     data_pred["rn_predict"]=model_rn.predict(x=padded)
-    
+    data_pred.to_excel(path_to_result+r"\results2.xlsx")
     
     
     #ejecutar los modelos sobre el nuebo conjunto
