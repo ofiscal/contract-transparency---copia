@@ -9,7 +9,7 @@ import pandas as pd
 # the way they are now,
 # or only defined in the function below that uses them?
 pathToData = r"data/SECOP_II_-_Contratos_Electr_nicos.csv"
-subsetsize=100000
+subsetsize=5000
 
 def secop2_general (
     subsetsize = subsetsize, # Indices into (subsetting) the data.

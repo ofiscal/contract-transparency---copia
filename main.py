@@ -10,14 +10,14 @@ def main():
     path_to_models=r"trainedmodels"
     pathToData = r"data/sucio/SECOP_II_-_Contratos_Electr_nicos.csv"
     path_to_result=r"data\resultados"
-    subsetsize=100000
+    subsetsize=10000
     max_length=200
     #loading the cleaned dataset
     data_pred=cleaning.secop_for_prediction(pathToData=pathToData)
     #entrenar los modelos o continuar su entrenamiento
     if False:
         data_train=cleaning.secop2_general(pathToData =pathToData)
-        model_rn,tokenizer=recurrent.recurrent_train(
+        model_rn,tokenizer,mean,ssd=recurrent.recurrent_train(
             X=data_train["Descripcion del Proceso"],
             Y=data_train["Valor del Contrato"])
         model_rn.save(path_to_models+"\model1_rn.h5") 
@@ -37,6 +37,7 @@ def main():
     #we padd them to make the sequences of equal length
     padded=pad_sequences(sequences,maxlen=max_length)
     data_pred["rn_predict"]=model_rn.predict(x=padded)
+    data_pred["rn_denormalized"]=model_rn["rn_predict"].apply(lambda x: x*ssd-mean)
     data_pred.to_excel(path_to_result+r"\results2.xlsx")
     
     

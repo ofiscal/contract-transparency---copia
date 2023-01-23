@@ -17,7 +17,7 @@ def recurrent_train (
     X: pd.Series,
     Y:pd.Series
     )->(tf.keras.Sequential,
-             tf.keras.preprocessing.text.Tokenizer):
+             tf.keras.preprocessing.text.Tokenizer,float,float):
     #this are the parameters for the model, we will update them as needed
     vocab_size=100000
     embedding_dim=100
@@ -52,4 +52,4 @@ def recurrent_train (
         metrics=["KLDivergence","MeanSquaredError"])
 
     model1.fit(padded,labels,epochs=num_epochs,validation_split=0.2,verbose=2)
-    return model1,tokenizer
+    return model1,tokenizer,labelsmean,labelssd
