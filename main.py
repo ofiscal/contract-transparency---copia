@@ -3,6 +3,7 @@ import python3_10.modules.models.recurrents as recurrent
 from tensorflow import keras
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.preprocessing.text import Tokenizer,tokenizer_from_json
+import python3_10.modules.post_processing.distance_functions as di_fu
 import json
 import io
 
@@ -44,6 +45,9 @@ def main():
     padded=pad_sequences(sequences,maxlen=max_length)
     data_pred["rn_predict"]=model_rn.predict(x=padded)
     data_pred["rn_denormalized"]=data_pred["rn_predict"].apply(lambda x: x*ssd-mean)
+    data_pred["percentage_error"]=di_fu.distance_percentage(
+        X1=data_pred["Valor del Contrato"],
+        X2=data_pred["rn_denormalized"])
     data_pred.to_excel(path_to_result+r"\results2.xlsx")
     
     
