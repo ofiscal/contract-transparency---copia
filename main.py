@@ -7,11 +7,14 @@ import json
 import io
 
 def main():
+    #some paths to where things are
     path_to_models=r"trainedmodels"
     pathToData = r"data/sucio/SECOP_II_-_Contratos_Electr_nicos.csv"
     path_to_result=r"data\resultados"
+    #this cant be change, they are how rn where train
     subsetsize=10000
     max_length=200
+    
     mean=163740447
     ssd=1716771980
     #loading the cleaned dataset
