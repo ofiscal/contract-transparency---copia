@@ -22,7 +22,7 @@ def recurrent_train (
     vocab_size=100000
     embedding_dim=100
     max_length=200
-    num_epochs=1
+    num_epochs=100
     learning_rate=0.001
     decay=0.00001
     #we prepare the information for the model
