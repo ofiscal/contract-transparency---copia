@@ -63,15 +63,15 @@ def transformer_train(    # TODO : These default arguments should probably
     vocab_size=100000
     embedding_dim=100 #this is the dimension that vocabulary will be reduced
     max_length=200 #length of the sentences
-    num_epochs=5
-    learning_rate=0.001
-    decay=0.00001
+    num_epochs=50
+    learning_rate=0.01
+    decay=0.0001
     num_heads = 2  # Number of attention heads
     ff_dim = 32  # Hidden layer size in feed forward network inside transformer
     
     tokenizer= Tokenizer(num_words=vocab_size,oov_token="<OOV>")
     tokenizer.fit_on_texts(X)
-    word=tokenizer.word_index
+
     #we generate series from the description text using the tokens instead of word
     sequences=tokenizer.texts_to_sequences(X)
     #we padd them to make the sequences of equal length
@@ -93,7 +93,7 @@ def transformer_train(    # TODO : These default arguments should probably
     outputs = layers.Dense(1)(x)
     model = keras.Model(inputs=inputs, outputs=outputs)
     
-    model.compile(optimizer=Adam(learning_rate=0.001, decay=0.00001),
+    model.compile(optimizer=Adam(learning_rate=learning_rate, decay=decay),
         loss='mean_absolute_error',
         metrics=["KLDivergence","MeanSquaredError"])
 

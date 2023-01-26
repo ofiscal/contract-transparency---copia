@@ -26,6 +26,9 @@ def main():
     #loading the cleaned dataset
     data_pred=cleaning.secop_for_prediction(pathToData=pathToData)
     #entrenar los modelos o continuar su entrenamiento
+    #we select from "TR" for trasformer "RN" for recurrent "NN" for neural network
+    #
+    entrenar="TR"
     if True:
         data_train=cleaning.secop2_general(pathToData =pathToData,subsetsize=subsetsize)
         model_rn,tokenizer,mean,ssd=Transformers.transformer_train(
@@ -38,7 +41,7 @@ def main():
         print(mean, " ",ssd)
     else:
         #call the pre trained models
-        model_rn=keras.models.load_model(path_to_models+"\model_rn.h5")
+        model_rn=keras.models.load_model(path_to_models+"\model1_tr.h5")
         file=open(path_to_models+r"\tokenizer.json")
         pre_token = json.load(file)   
         tokenizer=tokenizer_from_json(pre_token)
