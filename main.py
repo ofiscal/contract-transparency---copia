@@ -7,7 +7,7 @@ from tensorflow.keras.preprocessing.text import Tokenizer,tokenizer_from_json
 import python3_10.modules.post_processing.distance_functions as di_fu
 import json
 import io
-
+from sklearn.metrics import r2_score
 
 
 
@@ -54,7 +54,7 @@ def main():
         X1=data_pred["Valor del Contrato"],
         X2=data_pred["rn_denormalized"])
     data_pred.to_excel(path_to_result+r"\results2.xlsx")
-    
+    r2_score(data_pred["Valor del Contrato"],data_pred["rn_denormalized"])
     
     #ejecutar los modelos sobre el nuebo conjunto
     
