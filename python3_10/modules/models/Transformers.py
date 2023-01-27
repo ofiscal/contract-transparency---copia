@@ -56,7 +56,7 @@ def transformer_train(    # TODO : These default arguments should probably
     # rather than one of them from `datatest`.
     X: pd.Series,
     Y:pd.Series,
-
+    checkpointpath,
     )->(tf.keras.Sequential,
     tf.keras.preprocessing.text.Tokenizer,float,float):
 
@@ -94,11 +94,19 @@ def transformer_train(    # TODO : These default arguments should probably
     outputs = layers.Dense(1)(x)
     model = keras.Model(inputs=inputs, outputs=outputs)
     
+    model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
+        filepath=checkpointpath,
+        save_weights_only=False,
+        monitor='mean_absolute_error',
+        mode='max',
+        save_best_only=True)
+    
+    
     model.compile(optimizer=Adam(learning_rate=learning_rate, decay=decay),
         loss='mean_absolute_error',
         metrics=["KLDivergence","MeanSquaredError"])
 
-    model.fit(padded,labels,epochs=num_epochs,validation_split=0.2,verbose=2)
+    model.fit(padded,labels,epochs=num_epochs,validation_split=0.2,verbose=2,callbacks=[checkpointpath])
     return model,tokenizer,labelsmean,labelssd
     
     
