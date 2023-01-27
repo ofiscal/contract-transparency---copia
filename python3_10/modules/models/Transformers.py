@@ -99,14 +99,15 @@ def transformer_train(    # TODO : These default arguments should probably
         save_weights_only=False,
         monitor='mean_absolute_error',
         mode='max',
-        save_best_only=True)
+        save_best_only=True,
+        save_freq=200)
     
     
     model.compile(optimizer=Adam(learning_rate=learning_rate, decay=decay),
         loss='mean_absolute_error',
         metrics=["KLDivergence","MeanSquaredError"])
 
-    model.fit(padded,labels,epochs=num_epochs,validation_split=0.2,verbose=2,callbacks=[checkpointpath])
+    model.fit(padded,labels,epochs=num_epochs,validation_split=0.2,verbose=2,callbacks=[model_checkpoint_callback])
     return model,tokenizer,labelsmean,labelssd
     
     
