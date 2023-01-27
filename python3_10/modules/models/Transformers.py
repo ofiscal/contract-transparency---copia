@@ -55,7 +55,8 @@ def transformer_train(    # TODO : These default arguments should probably
     # both be defined from `data`,
     # rather than one of them from `datatest`.
     X: pd.Series,
-    Y:pd.Series
+    Y:pd.Series,
+
     )->(tf.keras.Sequential,
     tf.keras.preprocessing.text.Tokenizer,float,float):
 
@@ -63,9 +64,9 @@ def transformer_train(    # TODO : These default arguments should probably
     vocab_size=100000
     embedding_dim=100 #this is the dimension that vocabulary will be reduced
     max_length=200 #length of the sentences
-    num_epochs=50
-    learning_rate=0.01
-    decay=0.0001
+    num_epochs=10
+    learning_rate=0.001
+    decay=0.00001
     num_heads = 2  # Number of attention heads
     ff_dim = 32  # Hidden layer size in feed forward network inside transformer
     
@@ -88,7 +89,7 @@ def transformer_train(    # TODO : These default arguments should probably
     x = transformer_block(x)
     x = layers.GlobalAveragePooling1D()(x)
     x = layers.Dropout(0.1)(x)
-    x = layers.Dense(400, activation="relu")(x)
+    x = layers.Dense(100, activation="relu")(x)
     x = layers.Dropout(0.1)(x)
     outputs = layers.Dense(1)(x)
     model = keras.Model(inputs=inputs, outputs=outputs)

@@ -48,6 +48,7 @@ def secop_for_prediction(
     #load the predicted data
     data = pd.read_csv (
       pathToData,
+      skiprows =[1,subsetsize],
       nrows = subsetsize,
       decimal = ".",)
     data ["Valor del Contrato"] = (
