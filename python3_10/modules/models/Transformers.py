@@ -51,15 +51,8 @@ class TokenAndPositionEmbedding(layers.Layer):
         x = self.token_emb(x)
         return x + positions
 
-def transformer_train(    # TODO : These default arguments should probably
-    # both be defined from `data`,
-    # rather than one of them from `datatest`.
-    X: pd.Series,
-    Y:pd.Series,
-    checkpointpath,
-    )->(tf.keras.Sequential,
-    tf.keras.preprocessing.text.Tokenizer,float,float):
-
+def create_model_tr(
+        )->keras.Model:
     #this are the parameters for the model, we will update them as needed
     vocab_size=100000
     embedding_dim=100 #this is the dimension that vocabulary will be reduced
@@ -69,6 +62,38 @@ def transformer_train(    # TODO : These default arguments should probably
     decay=0.00001
     num_heads = 2  # Number of attention heads
     ff_dim = 32  # Hidden layer size in feed forward network inside transformer
+    inputs = layers.Input(shape=(max_length,))
+    
+    embedding_layer = TokenAndPositionEmbedding(max_length, vocab_size, embedding_dim)
+    x = embedding_layer(inputs)
+    transformer_block = TransformerBlock(embedding_dim, num_heads, ff_dim)
+    x = transformer_block(x)
+    x = layers.GlobalAveragePooling1D()(x)
+    x = layers.Dropout(0.1)(x)
+    x = layers.Dense(100, activation="relu")(x)
+    x = layers.Dropout(0.1)(x)
+    outputs = layers.Dense(1)(x)
+    model = keras.Model(inputs=inputs, outputs=outputs)
+    return model
+
+def transformer_train(    # TODO : These default arguments should probably
+    # both be defined from `data`,
+    # rather than one of them from `datatest`.
+    X: pd.Series,
+    Y:pd.Series,
+    checkpointpath,
+    )->(tf.keras.Sequential,
+    tf.keras.preprocessing.text.Tokenizer,float,float):
+    
+    vocab_size=100000
+    embedding_dim=100 #this is the dimension that vocabulary will be reduced
+    max_length=200 #length of the sentences
+    num_epochs=7
+    learning_rate=0.001
+    decay=0.00001
+    num_heads = 2  # Number of attention heads
+    ff_dim = 32  # Hidden layer size in feed forward network inside transformer
+
     
     tokenizer= Tokenizer(num_words=vocab_size,oov_token="<OOV>")
     tokenizer.fit_on_texts(X)
@@ -82,17 +107,7 @@ def transformer_train(    # TODO : These default arguments should probably
     labelssd=labels2.std()
     labels=(labels2-labelsmean)/labelssd
     
-    inputs = layers.Input(shape=(max_length,))
-    embedding_layer = TokenAndPositionEmbedding(max_length, vocab_size, embedding_dim)
-    x = embedding_layer(inputs)
-    transformer_block = TransformerBlock(embedding_dim, num_heads, ff_dim)
-    x = transformer_block(x)
-    x = layers.GlobalAveragePooling1D()(x)
-    x = layers.Dropout(0.1)(x)
-    x = layers.Dense(100, activation="relu")(x)
-    x = layers.Dropout(0.1)(x)
-    outputs = layers.Dense(1)(x)
-    model = keras.Model(inputs=inputs, outputs=outputs)
+
 
     model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
         filepath=checkpointpath,
@@ -101,7 +116,7 @@ def transformer_train(    # TODO : These default arguments should probably
         mode='max',
 
         save_freq=200)
-    
+    model=create_model_tr()
     model.compile(optimizer=Adam(learning_rate=learning_rate, decay=decay),
         loss='mean_absolute_error',
         metrics=["KLDivergence","MeanSquaredError"])
