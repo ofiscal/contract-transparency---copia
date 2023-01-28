@@ -33,8 +33,9 @@ def main():
         data_train=cleaning.secop2_general(pathToData =pathToData,subsetsize=subsetsize)
         model_rn,tokenizer,mean,ssd=Transformers.transformer_train(
             X=data_train["Descripcion del Proceso"],
-            Y=data_train["Valor del Contrato"],checkpointpath=path_to_models+"\model1_tr.h5")
-        model_rn.save(path_to_models+"\model1_tr.h5") 
+            Y=data_train["Valor del Contrato"],
+            checkpointpath=path_to_models+"\model1_tr.hdf5")
+        model_rn.save_weights(path_to_models+"\model1_tr.h5") 
         tokenizer_json=tokenizer.to_json()
         with io.open(path_to_models+"tokenizer.json","w",encoding="utf-8") as f:
             f.write(json.dumps(tokenizer_json,ensure_ascii=False))

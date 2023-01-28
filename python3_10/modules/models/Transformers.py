@@ -64,7 +64,7 @@ def transformer_train(    # TODO : These default arguments should probably
     vocab_size=100000
     embedding_dim=100 #this is the dimension that vocabulary will be reduced
     max_length=200 #length of the sentences
-    num_epochs=10
+    num_epochs=7
     learning_rate=0.001
     decay=0.00001
     num_heads = 2  # Number of attention heads
@@ -93,15 +93,14 @@ def transformer_train(    # TODO : These default arguments should probably
     x = layers.Dropout(0.1)(x)
     outputs = layers.Dense(1)(x)
     model = keras.Model(inputs=inputs, outputs=outputs)
-    
+
     model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
         filepath=checkpointpath,
-        save_weights_only=False,
-        monitor='mean_absolute_error',
+        save_weights_only=True,
+
         mode='max',
-        save_best_only=True,
+
         save_freq=200)
-    
     
     model.compile(optimizer=Adam(learning_rate=learning_rate, decay=decay),
         loss='mean_absolute_error',
