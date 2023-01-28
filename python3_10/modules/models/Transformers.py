@@ -52,7 +52,7 @@ class TokenAndPositionEmbedding(layers.Layer):
         return x + positions
 
 def create_model_tr(
-        )->keras.Model:
+        )->tf.keras.Model:
     #this are the parameters for the model, we will update them as needed
     vocab_size=100000
     embedding_dim=100 #this is the dimension that vocabulary will be reduced
@@ -74,6 +74,9 @@ def create_model_tr(
     x = layers.Dropout(0.1)(x)
     outputs = layers.Dense(1)(x)
     model = keras.Model(inputs=inputs, outputs=outputs)
+    model.compile(optimizer=Adam(learning_rate=learning_rate, decay=decay),
+    loss='mean_absolute_error',
+    metrics=["KLDivergence","MeanSquaredError"])
     return model
 
 def transformer_train(    # TODO : These default arguments should probably
@@ -112,17 +115,28 @@ def transformer_train(    # TODO : These default arguments should probably
     model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
         filepath=checkpointpath,
         save_weights_only=True,
-
         mode='max',
-
         save_freq=200)
     model=create_model_tr()
-    model.compile(optimizer=Adam(learning_rate=learning_rate, decay=decay),
-        loss='mean_absolute_error',
-        metrics=["KLDivergence","MeanSquaredError"])
+
 
     model.fit(padded,labels,epochs=num_epochs,validation_split=0.2,verbose=2,callbacks=[model_checkpoint_callback])
     return model,tokenizer,labelsmean,labelssd
+
+def keep_train(model:tf.keras.Model,
+    epocas:float,
+    X: pd.Series,
+    Y:pd.Series,
+    checkpointpath
+    )->tf.keras.Model:
+    model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
+        filepath=checkpointpath,
+        save_weights_only=True,
+        mode='max',
+        save_freq=200)
+    model.fit(X,Y,epochs=epocas,validation_split=0.2,verbose=2,callbacks=[model_checkpoint_callback])
+    return model
+    
     
     
     

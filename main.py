@@ -1,5 +1,5 @@
 import python3_10.modules.cleaning as cleaning
-import python3_10.modules.models.recurrents as recurrent
+
 import python3_10.modules.models.Transformers as Transformers
 from tensorflow import keras
 from tensorflow.keras.preprocessing.sequence import pad_sequences
@@ -28,10 +28,11 @@ def main():
     #entrenar los modelos o continuar su entrenamiento
     #we select from "TR" for trasformer "RN" for recurrent "NN" for neural network
     #
-    entrenar="TR"
-    if True:
-        data_train=cleaning.secop2_general(pathToData =pathToData,subsetsize=subsetsize)
-        model_rn,tokenizer,mean,ssd=Transformers.transformer_train(
+    entrenar="TR"        
+    data_train=cleaning.secop2_general(pathToData =pathToData,subsetsize=subsetsize)
+  
+    if False:
+        model_rn,tokenizer,mean,ssd=Transformers.transformer_create(
             X=data_train["Descripcion del Proceso"],
             Y=data_train["Valor del Contrato"],
             checkpointpath=path_to_models+"\model1_tr.hdf5")
@@ -40,14 +41,19 @@ def main():
         with io.open(path_to_models+"tokenizer.json","w",encoding="utf-8") as f:
             f.write(json.dumps(tokenizer_json,ensure_ascii=False))
         print(mean, " ",ssd)
-    else:
+    else:   
         #call the pre trained models
-        model_rn=keras.models.load_model(path_to_models+"\model1_tr.h5")
+        model_rn=Transformers.create_model_tr()
+        model_rn.load_weights(path_to_models+"\model1_tr.hdf5")
         file=open(path_to_models+r"\tokenizer.json")
         pre_token = json.load(file)   
         tokenizer=tokenizer_from_json(pre_token)
-    #predict using the models
-    
+        model_rn=Transformers.keep_train(model_rn,
+                    epocas=7,
+                    X=data_train["Descripcion del Proceso"],
+                    Y=data_train["Valor del Contrato"],
+                    checkpointpath=path_to_models+"\model1_tr.hdf5")
+
     #we generate series from the description text using the tokens instead of word
     sequences=tokenizer.texts_to_sequences(data_pred["Descripcion del Proceso"])
     #we padd them to make the sequences of equal length
