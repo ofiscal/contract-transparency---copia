@@ -31,8 +31,8 @@ def main():
     entrenar="TR"        
     data_train=cleaning.secop2_general(pathToData =pathToData,subsetsize=subsetsize)
   
-    if False:
-        model_rn,tokenizer,mean,ssd=Transformers.transformer_create(
+    if True:
+        model_rn,tokenizer,mean,ssd=Transformers.transformer_train(
             X=data_train["Descripcion del Proceso"],
             Y=data_train["Valor del Contrato"],
             checkpointpath=path_to_models+"\model1_tr.hdf5")
