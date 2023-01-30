@@ -31,7 +31,7 @@ def main():
     entrenar="TR"        
     data_train=cleaning.secop2_general(pathToData =pathToData,subsetsize=subsetsize)
   
-    if True:
+    if False:
         model_rn,tokenizer,mean,ssd=Transformers.transformer_train(
             X=data_train["Descripcion del Proceso"],
             Y=data_train["Valor del Contrato"],
@@ -48,6 +48,7 @@ def main():
         file=open(path_to_models+r"\tokenizer.json")
         pre_token = json.load(file)   
         tokenizer=tokenizer_from_json(pre_token)
+        
         model_rn=Transformers.keep_train(model_rn,
                     epocas=7,
                     X=data_train["Descripcion del Proceso"],

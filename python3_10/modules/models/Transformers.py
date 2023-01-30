@@ -134,7 +134,31 @@ def keep_train(model:tf.keras.Model,
         save_weights_only=True,
         mode='max',
         save_freq=200)
-    model.fit(X,Y,epochs=epocas,validation_split=0.2,verbose=2,callbacks=[model_checkpoint_callback])
+    
+    vocab_size=100000
+    embedding_dim=100 #this is the dimension that vocabulary will be reduced
+    max_length=200 #length of the sentences
+    num_epochs=7
+    learning_rate=0.001
+    decay=0.00001
+    num_heads = 2  # Number of attention heads
+    ff_dim = 32  # Hidden layer size in feed forward network inside transformer
+
+ 
+    
+    tokenizer= Tokenizer(num_words=vocab_size,oov_token="<OOV>")
+    tokenizer.fit_on_texts(X)
+
+    #we generate series from the description text using the tokens instead of word
+    sequences=tokenizer.texts_to_sequences(X)
+    #we padd them to make the sequences of equal length
+    padded=pad_sequences(sequences,maxlen=max_length)
+    labels2=Y.values
+    labelsmean=labels2.mean()
+    labelssd=labels2.std()
+    labels=(labels2-labelsmean)/labelssd
+    
+    model.fit(padded,labels,epochs=epocas,validation_split=0.2,verbose=2,callbacks=[model_checkpoint_callback])
     return model
     
     
