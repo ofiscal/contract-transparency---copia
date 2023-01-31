@@ -58,7 +58,7 @@ def create_model_tr(
     embedding_dim=100 #this is the dimension that vocabulary will be reduced
     max_length=200 #length of the sentences
     num_epochs=7
-    learning_rate=0.001
+    learning_rate=0.0001
     decay=0.00001
     num_heads = 2  # Number of attention heads
     ff_dim = 32  # Hidden layer size in feed forward network inside transformer

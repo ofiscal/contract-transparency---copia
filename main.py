@@ -17,7 +17,7 @@ def main():
     path_to_models=r"trainedmodels"
     pathToData = r"data/sucio/SECOP_II_-_Contratos_Electr_nicos.csv"
     path_to_result=r"data\resultados"
-    #this cant be change, they are how rn where train
+    #this cant be change, they are how rn where train (will be changed manually)
     subsetsize=500000
     max_length=200
     
@@ -50,7 +50,7 @@ def main():
         tokenizer=tokenizer_from_json(pre_token)
         
         model_rn=Transformers.keep_train(model_rn,
-                    epocas=7,
+                    epocas=3,
                     X=data_train["Descripcion del Proceso"],
                     Y=data_train["Valor del Contrato"],
                     checkpointpath=path_to_models+"\model1_tr.hdf5")
