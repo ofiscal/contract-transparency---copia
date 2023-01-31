@@ -58,7 +58,7 @@ def create_model_tr(
     embedding_dim=100 #this is the dimension that vocabulary will be reduced
     max_length=200 #length of the sentences
     num_epochs=1
-    learning_rate=0.0001
+    learning_rate=0.001
     decay=0.00001
     num_heads = 2  # Number of attention heads
     ff_dim = 32  # Hidden layer size in feed forward network inside transformer
@@ -70,7 +70,7 @@ def create_model_tr(
     x = transformer_block(x)
     x = layers.GlobalAveragePooling1D()(x)
     x = layers.Dropout(0.1)(x)
-    x = layers.Dense(100, activation="relu")(x)
+    x = layers.Dense(400, activation="relu")(x)
     x = layers.Dropout(0.1)(x)
     outputs = layers.Dense(1)(x)
     model = keras.Model(inputs=inputs, outputs=outputs)
