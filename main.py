@@ -50,7 +50,7 @@ def main():
         tokenizer=tokenizer_from_json(pre_token)
         
         model_rn=Transformers.keep_train(model_rn,
-                    epocas=3,
+                    epocas=10,
                     X=data_train["Descripcion del Proceso"],
                     Y=data_train["Valor del Contrato"],
                     checkpointpath=path_to_models+"\model1_tr.hdf5")

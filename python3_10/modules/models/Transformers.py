@@ -57,7 +57,7 @@ def create_model_tr(
     vocab_size=100000
     embedding_dim=100 #this is the dimension that vocabulary will be reduced
     max_length=200 #length of the sentences
-    num_epochs=7
+    num_epochs=1
     learning_rate=0.0001
     decay=0.00001
     num_heads = 2  # Number of attention heads
