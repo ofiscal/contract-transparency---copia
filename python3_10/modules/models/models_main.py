@@ -2,7 +2,16 @@
 """
 Created on Wed Feb  1 15:18:20 2023
 
-@author: usuario
+@author: Daniel Duque Lozano
 """
+
+import tensorflow as tf
+from tensorflow import keras
+
 class joining():
-    __init__
+    def __init__(self):
+        ...
+    
+    def load_models(path):
+        self.Transformers=
+        

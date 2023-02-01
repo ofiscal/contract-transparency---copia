@@ -150,10 +150,6 @@ def keep_train(model:tf.keras.Model,
         mode='max',
         save_freq=200)
     
-
-
- 
-    
     tokenizer= Tokenizer(num_words=argumentos.vocab_size,oov_token="<OOV>")
     tokenizer.fit_on_texts(X)
 
