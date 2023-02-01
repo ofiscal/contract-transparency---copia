@@ -50,7 +50,39 @@ class TokenAndPositionEmbedding(layers.Layer):
         positions = self.pos_emb(positions)
         x = self.token_emb(x)
         return x + positions
+    
+class arguments():
+    def __init__(self,vocab_size: int,
+                 embedding_dim: int,
+                 max_length: int,
+                 num_epochs: int,
+                 learning_rate: float,
+                 decay: float,
+                 num_heads: int,
+                 ff_dim: int):
+        self.vocab_size=vocab_size
+        self.embedding_dim=embedding_dim
+        self.max_length=max_length
+        self.num_epochs=num_epochs
+        self.learning_rate=learning_rate
+        self.decay=decay
+        self.num_heads=num_heads
+        self.ff_dim=ff_dim
+        
+argumentos=arguments(
+    vocab_size=100000,
+    embedding_dim=100,
+    max_length=200,
+    num_epochs=1,
+    learning_rate=0.001,
+    decay=0.00001,
+    num_heads = 2,
+    ff_dim = 32 
+    
+    
+    )
 
+             
 def create_model_tr(
         )->tf.keras.Model:
     #this are the parameters for the model, we will update them as needed
