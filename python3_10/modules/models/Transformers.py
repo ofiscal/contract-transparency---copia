@@ -122,7 +122,7 @@ def transformer_train(    # TODO : These default arguments should probably
 
     model.fit(padded,labels,epochs=num_epochs,validation_split=0.2,verbose=2,callbacks=[model_checkpoint_callback])
     return model,tokenizer,labelsmean,labelssd
-
+    ##
 def keep_train(model:tf.keras.Model,
     epocas:float,
     X: pd.Series,
