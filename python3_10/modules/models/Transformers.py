@@ -77,9 +77,7 @@ argumentos=arguments(
     learning_rate=0.001,
     decay=0.00001,
     num_heads = 2,
-    ff_dim = 32 
-    
-    
+    ff_dim = 32    
     )
 
              
