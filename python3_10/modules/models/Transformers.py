@@ -84,27 +84,20 @@ argumentos=arguments(
 def create_model_tr(
         )->tf.keras.Model:
     #this are the parameters for the model, we will update them as needed
-    vocab_size=100000
-    embedding_dim=100 #this is the dimension that vocabulary will be reduced
-    max_length=200 #length of the sentences
-    num_epochs=1
-    learning_rate=0.001
-    decay=0.00001
-    num_heads = 2  # Number of attention heads
-    ff_dim = 32  # Hidden layer size in feed forward network inside transformer
-    inputs = layers.Input(shape=(max_length,))
+    argumentos
+    inputs = layers.Input(shape=(argumentos.max_length,))
     
-    embedding_layer = TokenAndPositionEmbedding(max_length, vocab_size, embedding_dim)
+    embedding_layer = TokenAndPositionEmbedding(argumentos.max_length, argumentos.vocab_size, argumentos.embedding_dim)
     x = embedding_layer(inputs)
-    transformer_block = TransformerBlock(embedding_dim, num_heads, ff_dim)
+    transformer_block = TransformerBlock(argumentos.embedding_dim, argumentos.num_heads, argumentos.ff_dim)
     x = transformer_block(x)
     x = layers.GlobalAveragePooling1D()(x)
     x = layers.Dropout(0.1)(x)
-    x = layers.Dense(400, activation="relu")(x)
+    x = layers.Dense(100, activation="relu")(x)
     x = layers.Dropout(0.1)(x)
     outputs = layers.Dense(1)(x)
     model = keras.Model(inputs=inputs, outputs=outputs)
-    model.compile(optimizer=Adam(learning_rate=learning_rate, decay=decay),
+    model.compile(optimizer=Adam(learning_rate=argumentos.learning_rate, decay=argumentos.decay),
     loss='mean_absolute_error',
     metrics=["KLDivergence","MeanSquaredError"])
     return model
@@ -118,23 +111,15 @@ def transformer_train(    # TODO : These default arguments should probably
     )->(tf.keras.Sequential,
     tf.keras.preprocessing.text.Tokenizer,float,float):
     
-    vocab_size=100000
-    embedding_dim=100 #this is the dimension that vocabulary will be reduced
-    max_length=200 #length of the sentences
-    num_epochs=7
-    learning_rate=0.001
-    decay=0.00001
-    num_heads = 2  # Number of attention heads
-    ff_dim = 32  # Hidden layer size in feed forward network inside transformer
 
     
-    tokenizer= Tokenizer(num_words=vocab_size,oov_token="<OOV>")
+    tokenizer= Tokenizer(num_words=argumentos.vocab_size,oov_token="<OOV>")
     tokenizer.fit_on_texts(X)
 
     #we generate series from the description text using the tokens instead of word
     sequences=tokenizer.texts_to_sequences(X)
     #we padd them to make the sequences of equal length
-    padded=pad_sequences(sequences,maxlen=max_length)
+    padded=pad_sequences(sequences,maxlen=argumentos.max_length)
     labels2=Y.values
     labelsmean=labels2.mean()
     labelssd=labels2.std()
@@ -150,7 +135,7 @@ def transformer_train(    # TODO : These default arguments should probably
     model=create_model_tr()
 
 
-    model.fit(padded,labels,epochs=num_epochs,validation_split=0.2,verbose=2,callbacks=[model_checkpoint_callback])
+    model.fit(padded,labels,epochs=argumentos.num_epochs,validation_split=0.2,verbose=2,callbacks=[model_checkpoint_callback])
     return model,tokenizer,labelsmean,labelssd
     ##
 def keep_train(model:tf.keras.Model,
@@ -165,24 +150,17 @@ def keep_train(model:tf.keras.Model,
         mode='max',
         save_freq=200)
     
-    vocab_size=100000
-    embedding_dim=100 #this is the dimension that vocabulary will be reduced
-    max_length=200 #length of the sentences
-    num_epochs=7
-    learning_rate=0.001
-    decay=0.00001
-    num_heads = 2  # Number of attention heads
-    ff_dim = 32  # Hidden layer size in feed forward network inside transformer
+
 
  
     
-    tokenizer= Tokenizer(num_words=vocab_size,oov_token="<OOV>")
+    tokenizer= Tokenizer(num_words=argumentos.vocab_size,oov_token="<OOV>")
     tokenizer.fit_on_texts(X)
 
     #we generate series from the description text using the tokens instead of word
     sequences=tokenizer.texts_to_sequences(X)
     #we padd them to make the sequences of equal length
-    padded=pad_sequences(sequences,maxlen=max_length)
+    padded=pad_sequences(sequences,maxlen=argumentos.max_length)
     labels2=Y.values
     labelsmean=labels2.mean()
     labelssd=labels2.std()
