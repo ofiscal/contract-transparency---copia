@@ -50,10 +50,12 @@ def main():
         tokenizer=tokenizer_from_json(pre_token)
         
         model_rn=Transformers.keep_train(model_rn,
-                    epocas=10,
+                    epocas=5,
                     X=data_train["Descripcion del Proceso"],
                     Y=data_train["Valor del Contrato"],
-                    checkpointpath=path_to_models+"\model1_tr.hdf5")
+                    checkpointpath=path_to_models+"\model1_tr.hdf5",
+                    mean=mean,
+                    stdv=ssd)
 
     #we generate series from the description text using the tokens instead of word
     sequences=tokenizer.texts_to_sequences(data_pred["Descripcion del Proceso"])
