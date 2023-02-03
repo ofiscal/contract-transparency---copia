@@ -11,7 +11,7 @@ from tensorflow.keras import layers
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.optimizers import Adam
-
+from python_3_10.modules.models.models_main import argumentos
 #the structural definition of the transformer block and tokens was taken from
 #https://keras.io/examples/nlp/text_classification_with_transformer/ with 
 #some changes
@@ -51,34 +51,6 @@ class TokenAndPositionEmbedding(layers.Layer):
         x = self.token_emb(x)
         return x + positions
     
-class arguments():
-    def __init__(self,vocab_size: int,
-                 embedding_dim: int,
-                 max_length: int,
-                 num_epochs: int,
-                 learning_rate: float,
-                 decay: float,
-                 num_heads: int,
-                 ff_dim: int):
-        self.vocab_size=vocab_size
-        self.embedding_dim=embedding_dim
-        self.max_length=max_length
-        self.num_epochs=num_epochs
-        self.learning_rate=learning_rate
-        self.decay=decay
-        self.num_heads=num_heads
-        self.ff_dim=ff_dim
-        
-argumentos=arguments(
-    vocab_size=100000,
-    embedding_dim=100,
-    max_length=200,
-    num_epochs=1,
-    learning_rate=0.001,
-    decay=0.00001,
-    num_heads = 2,
-    ff_dim = 32    
-    )
 
              
 def create_model_tr(
@@ -142,8 +114,11 @@ def keep_train(model:tf.keras.Model,
     epocas:float,
     X: pd.Series,
     Y:pd.Series,
-    checkpointpath
+    checkpointpath,
+    mean:float,
+    stdv:float
     )->tf.keras.Model:
+    
     model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
         filepath=checkpointpath,
         save_weights_only=True,
@@ -158,8 +133,8 @@ def keep_train(model:tf.keras.Model,
     #we padd them to make the sequences of equal length
     padded=pad_sequences(sequences,maxlen=argumentos.max_length)
     labels2=Y.values
-    labelsmean=labels2.mean()
-    labelssd=labels2.std()
+    labelsmean=mean
+    labelssd=stdv
     labels=(labels2-labelsmean)/labelssd
     
     model.fit(padded,labels,epochs=epocas,validation_split=0.2,verbose=2,callbacks=[model_checkpoint_callback])
