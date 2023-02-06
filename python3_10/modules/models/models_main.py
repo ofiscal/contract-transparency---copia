@@ -18,7 +18,8 @@ class arguments():
                  learning_rate: float,
                  decay: float,
                  num_heads: int,
-                 ff_dim: int):
+                 ff_dim: int,
+                 max_word:int):
         self.vocab_size=vocab_size
         self.embedding_dim=embedding_dim
         self.max_length=max_length
@@ -27,6 +28,8 @@ class arguments():
         self.decay=decay
         self.num_heads=num_heads
         self.ff_dim=ff_dim
+        self.max_word=max_word
+        
         
 argumentos=arguments(
     vocab_size=100000,
@@ -36,7 +39,8 @@ argumentos=arguments(
     learning_rate=0.001,
     decay=0.00001,
     num_heads = 2,
-    ff_dim = 32    
+    ff_dim = 32,
+    max_word=10000,    
     )
 
 
