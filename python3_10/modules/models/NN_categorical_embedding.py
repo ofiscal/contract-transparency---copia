@@ -2,7 +2,7 @@
 """
 Created on Wed Feb  1 15:46:40 2023
 
-@author: usuario
+@author: Daniel Duque
 """
 import tensorflow as tf
 import pandas as pd
@@ -14,11 +14,12 @@ from tensorflow.keras.optimizers import Adam
 from python_3_10.modules.models.models_main import argumentos
 
 def create_model_categorical(
+        categorical_vars:pd.DataFrame()
         )->tf.keras.Model:
     #this are the parameters for the model, we will update them as needed
     argumentos
     inputs = layers.Input(shape=(argumentos.max_length,))
-    
+
     model=tf.keras.Sequential([
         tf.keras.layers.Embedding(argumentos.vocab_size,
                                   argumentos.embedding_dim, 
@@ -73,7 +74,7 @@ def categorical_train(    # TODO : These default arguments should probably
     
 def keep_train(model:tf.keras.Model,
     epocas:float,
-    X: pd.Series,
+    X: pd.DataFrame,
     Y:pd.Series,
     checkpointpath,
     mean:float,
@@ -85,9 +86,11 @@ def keep_train(model:tf.keras.Model,
         save_weights_only=True,
         mode='max',
         save_freq=200)
-    
-    tokenizer= Tokenizer(num_words=argumentos.vocab_size,oov_token="<OOV>")
-    tokenizer.fit_on_texts(X)
+    tokenizers=list()
+    for i in X:
+        tokenizer= Tokenizer(num_words=argumentos.vocab_size,oov_token="<OOV>")
+        tokenizer.fit_on_texts(i)
+        tokenizers.append(tokenizer)
 
     #we generate series from the description text using the tokens instead of word
     sequences=tokenizer.texts_to_sequences(X)
