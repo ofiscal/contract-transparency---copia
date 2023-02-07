@@ -64,13 +64,13 @@ def numerical_layer(inputsz:pd.DataFrame(),
     
 def create_model_full(numeric_var:int,
                       categorical_vars:pd.DataFrame(),
-                      numerical_vars:pd.DataFrame(),
+                      numeric_vars:pd.DataFrame(),
                       conv_vars:pd.DataFrame()
         ):
     argumentos
     inputsx = layers.Input(shape=(argumentos.max_length,))
     inputsy = layers.Input(shape=(argumentos.max_word,))
-    inputsz=layers.Input(shape=(len(numerical_vars),))
+    inputsz=layers.Input(shape=(len(numeric_vars),))
   
     #the next layers are paralelized
     
@@ -82,7 +82,7 @@ def create_model_full(numeric_var:int,
                               categorical_vars=categorical_vars)
     #numeric layer
     numeric=numerical_layer(inputsz,
-                            numerical_vars=numerical_vars)
+                            numeric_vars=numeric_vars)
     ##
 
 
@@ -96,9 +96,19 @@ def create_model_full(numeric_var:int,
     
 def full_train(
                 categorical_vars:pd.DataFrame(),
-        numerical_vars:pd.DataFrame(),
+        numeric_vars:pd.DataFrame(),
         transformer_vars:pd.DataFrame(),
         conv_vars:pd.DataFrame()
         )->tf.keras.Model:
     ...
+    model=create_model_full(categorical_vars= categorical_vars,numeric_vars= numeric_vars, conv_vars=conv_vars)
+    
+    model.fit()
+    
+    
+def run():
+    
+    
+    
+    
         
