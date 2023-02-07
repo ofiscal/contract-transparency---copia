@@ -27,14 +27,14 @@ def transformer_layer(inputsx:layers.Input
     transformer_block = TransformerBlock(argumentos.embedding_dim, argumentos.num_heads, argumentos.ff_dim)
     x = transformer_block(x)
     x = layers.GlobalAveragePooling1D()(x)
-    x = layers.Dropout(0.1)(x)
+    x = layers.Dropout(0.5)(x)
     x = layers.Dense(100, activation="relu")(x)
-    x = layers.Dropout(0.1)(x)
+    x = layers.Dropout(0.5)(x)
     outputs = layers.Dense(1)(x)
     return x
 
 
-def categorical_layer(inputy:layers.Input,
+def categorical_layer(inputsy:layers.Input,
                       categorical_vars:pd.DataFrame()
                       ):
     inputss = []
@@ -42,24 +42,37 @@ def categorical_layer(inputy:layers.Input,
     for c in categorical_vars:
         inputs = layers.Input(shape=(1,),name='input_sparse_'+c)
 
-        embedding = Embedding(argumentos.max_word, embedding_size, input_length = 1)(inputs)
-        embedding = Reshape(target_shape=(embedding_size,))(embedding)
+        embedding = TokenAndPositionEmbedding(argumentos.max_word,
+                                              argumentos.vocab_size,
+                                              argumentos.embedding_dim)
         inputss.append(inputs)
         embeddings.append(embedding)
-    input_numeric = Input(shape=(1,),name='input_constinuous')
-    embedding_numeric = Dense(16)(input_numeric)
-    inputss.append(input_numeric)
-    embeddings.append(embedding_numeric)
-    y = Concatenate()(embeddings)
+    y=layers.concatenate()(embeddings)
+    y = layers.Dense(100, activation="relu")(y)
+    y=layers.Dropout(0.5)(y)
+    y=layers.Dense(1)(y)
+    return y
 
-def create_model_full(
+def numerical_layer(inputsz:pd.DataFrame(),
+                    numerical_vars:pd.DataFrame()
+                    ):
+    z= layers.Dense(len(inputsz.columns))(inputsz)
+    z = layers.Dense(100, activation="relu")(z)
+    z = layers.Dropout(0.5)(z)
+    outputs = layers.Dense(1)(z)
+def create_model_full(numeric_var:int,
+                      categorical_vars:pd.DataFrame(),
+                      numerical_vars:pd.DataFrame()
         ):
     argumentos
     inputsx = layers.Input(shape=(argumentos.max_length,))
     inputsy = layers.Input(shape=(argumentos.max_word,))
+    inputsz=layers.Input(shape=(len(numerical_vars),))
+    input_numeric = layers.Input(shape=(argumentos.max_word,))
     ##Transformer layer
     transf=transformer_layer(inputsx=inputsx)
-
+    categor=categorical_layer(inputsy=inputsy,
+                              categorical_vars=categorical_vars)
     ##
 
 
