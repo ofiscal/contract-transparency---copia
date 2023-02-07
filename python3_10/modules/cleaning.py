@@ -42,6 +42,12 @@ def secop2_general (
                x if x < 4e10 else 4e10 ) )
     return data
 
+def secop2_categorical(
+        pathToData=pathToData        
+        ) ->pd.DataFrame:
+    ...
+    names=[]
+
 def secop_for_prediction(
         pathToData=pathToData        
         ) ->pd.DataFrame:

@@ -11,8 +11,8 @@ from tensorflow.keras import layers
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.optimizers import Adam
-from python_3_10.modules.models.models_main import argumentos
-from python_3_10.modules.models.Transformer import TransformerBlock,TokenAndPositionEmbedding
+from python3_10.modules.models.models_main import argumentos
+from python3_10.modules.models.Transformers import TransformerBlock,TokenAndPositionEmbedding
 import numpy as np
 #the structural definition of the transformer block and tokens was taken from
 #https://keras.io/examples/nlp/text_classification_with_transformer/ with 
@@ -88,7 +88,7 @@ def create_model_full(numeric_var:int,
 
     combined = layers.concatenate([transf.output, categor.output,numeric.output])
     ka = layers.Dense(2, activation="relu")(combined)
-    ka = layers.Dense(1, activation="relu")(ka)
+    ka = layers.Dense(1)(ka)
     
     model = keras.Model(inputs=[transf.input, categor.input,numeric.input],
                         outputs=ka)
@@ -98,15 +98,24 @@ def full_train(
                 categorical_vars:pd.DataFrame(),
         numeric_vars:pd.DataFrame(),
         transformer_vars:pd.DataFrame(),
-        conv_vars:pd.DataFrame()
+        conv_vars:pd.DataFrame(),
+        output:pd.DataFrame(),
+        checkpointpath,
+        
         )->tf.keras.Model:
-    ...
-    model=create_model_full(categorical_vars= categorical_vars,numeric_vars= numeric_vars, conv_vars=conv_vars)
     
-    model.fit()
+    model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
+        filepath=checkpointpath,
+        save_weights_only=True,
+        mode='max',
+        save_freq=200)
+    
+    model=create_model_full(categorical_vars= categorical_vars,numeric_vars= numeric_vars)
+    
+    model.fit(x=[categorical_vars,numeric_vars,transformer_vars],y=output,batch_size=8,epochs=1,)
     
     
-def run():
+
     
     
     

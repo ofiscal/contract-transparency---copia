@@ -11,7 +11,9 @@ from tensorflow.keras import layers
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.optimizers import Adam
-from python_3_10.modules.models.models_main import argumentos
+from python3_10.modules.models.models_main import argumentos
+import python3_10.modules.cleaning as cleaning
+
 #the structural definition of the transformer block and tokens was taken from
 #https://keras.io/examples/nlp/text_classification_with_transformer/ with 
 #some changes
@@ -140,9 +142,29 @@ def keep_train(model:tf.keras.Model,
     model.fit(padded,labels,epochs=epocas,validation_split=0.2,verbose=2,callbacks=[model_checkpoint_callback])
     return model
     
-    
-    
-    
+
+#this will be later transplanted to the main file, but for now I need to test
+#the code somewhere and tdidn´t find a better place
+#some paths to where things are
+path_to_models=r"trainedmodels"
+pathToData = r"data/sucio/SECOP_II_-_Contratos_Electr_nicos.csv"
+path_to_result=r"data\resultados"
+#this cant be change, they are how rn where train (will be changed manually)
+subsetsize=500000
+max_length=200
+
+mean=163740447
+ssd=1716771980
+#loading the cleaned dataset
+data_pred=cleaning.secop_for_prediction(pathToData=pathToData)
+#entrenar los modelos o continuar su entrenamiento
+#we select from "TR" for trasformer "RN" for recurrent "NN" for neural network
+#
+entrenar="TR"        
+data_train=cleaning.secop2_general(pathToData =pathToData,subsetsize=subsetsize)
+  
+
+
     
     
     
