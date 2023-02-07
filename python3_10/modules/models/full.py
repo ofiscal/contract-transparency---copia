@@ -30,7 +30,7 @@ def transformer_layer(inputsx:layers.Input
     x = layers.Dropout(0.5)(x)
     x = layers.Dense(100, activation="relu")(x)
     x = layers.Dropout(0.5)(x)
-    outputs = layers.Dense(1)(x)
+    x = layers.Dense(1)(x)
     return x
 
 
@@ -59,33 +59,40 @@ def numerical_layer(inputsz:pd.DataFrame(),
     z= layers.Dense(len(inputsz.columns))(inputsz)
     z = layers.Dense(100, activation="relu")(z)
     z = layers.Dropout(0.5)(z)
-    outputs = layers.Dense(1)(z)
+    z = layers.Dense(1)(z)
+    return z
+    
 def create_model_full(numeric_var:int,
                       categorical_vars:pd.DataFrame(),
-                      numerical_vars:pd.DataFrame()
+                      numerical_vars:pd.DataFrame(),
+                      conv_vars:pd.DataFrame()
         ):
     argumentos
     inputsx = layers.Input(shape=(argumentos.max_length,))
     inputsy = layers.Input(shape=(argumentos.max_word,))
     inputsz=layers.Input(shape=(len(numerical_vars),))
-    input_numeric = layers.Input(shape=(argumentos.max_word,))
+  
+    #the next layers are paralelized
+    
+  
     ##Transformer layer
     transf=transformer_layer(inputsx=inputsx)
+    #categorical layer
     categor=categorical_layer(inputsy=inputsy,
                               categorical_vars=categorical_vars)
+    #numeric layer
+    numeric=numerical_layer(inputsz,
+                            numerical_vars=numerical_vars)
     ##
 
 
-
-
+    combined = layers.concatenate([transf.output, categor.output,numeric.output])
+    ka = layers.Dense(2, activation="relu")(combined)
+    ka = layers.Dense(1, activation="relu")(ka)
     
-    
-    
-    combined = concatenate([x.output, y.output])
-    
-    
-    model = keras.Model(inputs=inputs, outputs=outputs)
-    
+    model = keras.Model(inputs=[transf.input, categor.input,numeric.input],
+                        outputs=ka)
+    return model
     
 def full_train(
                 categorical_vars:pd.DataFrame(),
