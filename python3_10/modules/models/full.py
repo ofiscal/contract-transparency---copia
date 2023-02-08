@@ -14,29 +14,38 @@ from tensorflow.keras.optimizers import Adam
 from python3_10.modules.models.models_main import argumentos
 from python3_10.modules.models.Transformers import TransformerBlock,TokenAndPositionEmbedding
 import numpy as np
+import python3_10.modules.cleaning as cleaning
+
 #the structural definition of the transformer block and tokens was taken from
 #https://keras.io/examples/nlp/text_classification_with_transformer/ with 
 #some changes
 
 
 
-def transformer_layer(inputsx:layers.Input
+def transformer_layer(inputsx:layers.Input,
+                      x
                       ):
-    embedding_layer = TokenAndPositionEmbedding(argumentos.max_length, argumentos.vocab_size, argumentos.embedding_dim)
+    
+    
+    embedding_layer = TokenAndPositionEmbedding(argumentos.max_length,
+                                                argumentos.vocab_size,
+                                                argumentos.embedding_dim)
     x = embedding_layer(inputsx)
-    transformer_block = TransformerBlock(argumentos.embedding_dim, argumentos.num_heads, argumentos.ff_dim)
+    transformer_block = TransformerBlock(argumentos.embedding_dim,
+                                         argumentos.num_heads,
+                                         argumentos.ff_dim)
     x = transformer_block(x)
     x = layers.GlobalAveragePooling1D()(x)
     x = layers.Dropout(0.5)(x)
     x = layers.Dense(100, activation="relu")(x)
     x = layers.Dropout(0.5)(x)
     x = layers.Dense(1)(x)
-    return x
+    return keras.Model(inputs=inputsx, outputs=x)
 
 
 def categorical_layer(inputsy:layers.Input,
                       categorical_vars:pd.DataFrame()
-                      ):
+                      )->keras.layers:
     inputss = []
     embeddings = []
     for c in categorical_vars:
@@ -47,11 +56,15 @@ def categorical_layer(inputsy:layers.Input,
                                               argumentos.embedding_dim)
         inputss.append(inputs)
         embeddings.append(embedding)
-    y=layers.concatenate()(embeddings)
+    input_numeric = keras.Input(shape=(1,),name='input_constinuous')
+    embedding_numeric = layers.Dense(16)(input_numeric)
+    embeddings.append(embedding_numeric)
+    inputss.append(input_numeric)
+    y=layers.Concatenate()(inputss)
     y = layers.Dense(100, activation="relu")(y)
     y=layers.Dropout(0.5)(y)
     y=layers.Dense(1)(y)
-    return y
+    return keras.Model(inputs=inputss, outputs=y)
 
 def numerical_layer(inputsz:pd.DataFrame(),
                     numerical_vars:pd.DataFrame()
@@ -60,45 +73,42 @@ def numerical_layer(inputsz:pd.DataFrame(),
     z = layers.Dense(100, activation="relu")(z)
     z = layers.Dropout(0.5)(z)
     z = layers.Dense(1)(z)
-    return z
+    return keras.Model(inputs=inputsz, outputs=z)
     
-def create_model_full(numeric_var:int,
-                      categorical_vars:pd.DataFrame(),
-                      numeric_vars:pd.DataFrame(),
-                      conv_vars:pd.DataFrame()
+def create_model_full(categorical_vars:pd.DataFrame(),
+
+                      transformer_vars:pd.DataFrame(),
         ):
     argumentos
     inputsx = layers.Input(shape=(argumentos.max_length,))
     inputsy = layers.Input(shape=(argumentos.max_word,))
-    inputsz=layers.Input(shape=(len(numeric_vars),))
+
   
     #the next layers are paralelized
     
-  
-    ##Transformer layer
-    transf=transformer_layer(inputsx=inputsx)
     #categorical layer
     categor=categorical_layer(inputsy=inputsy,
                               categorical_vars=categorical_vars)
+    ##Transformer layer
+    transf=transformer_layer(inputsx=inputsx,x=transformer_vars)
+
     #numeric layer
-    numeric=numerical_layer(inputsz,
-                            numeric_vars=numeric_vars)
+
     ##
 
-
-    combined = layers.concatenate([transf.output, categor.output,numeric.output])
+    print(categor)
+    print(transf)
+    combined = layers.concatenate([transf.output, categor.output])
     ka = layers.Dense(2, activation="relu")(combined)
     ka = layers.Dense(1)(ka)
     
-    model = keras.Model(inputs=[transf.input, categor.input,numeric.input],
+    model = keras.Model(inputs=[transf.input, categor.input],
                         outputs=ka)
     return model
     
 def full_train(
                 categorical_vars:pd.DataFrame(),
-        numeric_vars:pd.DataFrame(),
         transformer_vars:pd.DataFrame(),
-        conv_vars:pd.DataFrame(),
         output:pd.DataFrame(),
         checkpointpath,
         
@@ -110,14 +120,61 @@ def full_train(
         mode='max',
         save_freq=200)
     
-    model=create_model_full(categorical_vars= categorical_vars,numeric_vars= numeric_vars)
+    model=create_model_full(categorical_vars= categorical_vars,
+                            transformer_vars=transformer_vars)
     
-    model.fit(x=[categorical_vars,numeric_vars,transformer_vars],y=output,batch_size=8,epochs=1,)
+    model.compile(optimizer=Adam(learning_rate=argumentos.learning_rate,
+                                 decay=argumentos.decay),
+                                 loss='mean_absolute_error',
+                                 metrics=["KLDivergence","MeanSquaredError"])
+    
+    model.fit(x=[categorical_vars,transformer_vars],
+              y=output,batch_size=8,epochs=1,validation_split=0.2,verbose=2,
+              callbacks=[model_checkpoint_callback])
     
     
 
+#this will be later transplanted to the main file, but for now I need to test
+#the code somewhere and tdidn´t find a better place
+#some paths to where things are
+path_to_models=r"trainedmodels"
+pathToData = r"data/sucio/SECOP_II_-_Contratos_Electr_nicos.csv"
+path_to_result=r"data\resultados"
+#this cant be change, they are how rn where train (will be changed manually)
+subsetsize=500000
+max_length=200
+
+mean=163740447
+ssd=1716771980
+#loading the cleaned dataset
+data_pred=cleaning.secop_for_prediction(pathToData=pathToData)
+
+#entrenar los modelos o continuar su entrenamiento
+#we select from "TR" for trasformer "RN" for recurrent "NN" for neural network
+#
+entrenar="TR"        
+data_desc=cleaning.secop2_general(pathToData =pathToData,subsetsize=20000)
+data_categ=cleaning.secop2_categoric(pathToData =pathToData,subsetsize=20000)
+
+data_value=cleaning.secop2_valor(pathToData =pathToData,subsetsize=20000)
+
+
+tokenizer= Tokenizer(num_words=argumentos.vocab_size,oov_token="<OOV>")
+tokenizer.fit_on_texts(data_desc)
+
+#we generate series from the description text using the tokens instead of word
+sequences=tokenizer.texts_to_sequences(data_desc)
+#we padd them to make the sequences of equal length
+padded=pad_sequences(sequences,maxlen=argumentos.max_length)
+
+
+
+
+full_train(categorical_vars=data_categ,
+           transformer_vars=padded,
+           output=data_value,checkpointpath=path_to_models+"\model1_tr.hdf5")
+
+
+
+
     
-    
-    
-    
-        

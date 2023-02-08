@@ -32,7 +32,25 @@ def secop2_general (
       skiprows =0,
       nrows = subsetsize,
       decimal = ".",
-      usecols = ["Descripcion del Proceso","Valor del Contrato"])
+      usecols = ["Descripcion del Proceso"])
+
+    return data
+
+
+
+def secop2_valor(subsetsize = subsetsize, # Indices into (subsetting) the data.
+        pathToData=pathToData        
+        ) ->pd.DataFrame:
+    ...
+    
+
+
+    data = pd.read_csv (
+      pathToData,
+      skiprows =0,
+      nrows = subsetsize,
+      decimal = ".",
+      usecols = ["Valor del Contrato"])
 
     data ["Valor del Contrato"] = (
       data["Valor del Contrato"]
@@ -42,11 +60,63 @@ def secop2_general (
                x if x < 4e10 else 4e10 ) )
     return data
 
-def secop2_categorical(
+
+def secop2_categoric(subsetsize = subsetsize, # Indices into (subsetting) the data.
         pathToData=pathToData        
         ) ->pd.DataFrame:
     ...
-    names=[]
+    names=['Nombre Entidad', 'Departamento', 'Ciudad',
+           'Localización', 'Orden', 'Sector', 'Rama', 'Entidad Centralizada',
+           'Proceso de Compra', 'ID Contrato', 'Referencia del Contrato',
+           'Estado Contrato', 'Codigo de Categoria Principal','Tipo de Contrato',
+           'Modalidad de Contratacion', 'Justificacion Modalidad de Contratacion',
+           'Condiciones de Entrega',
+           'TipoDocProveedor', 'Documento Proveedor', 'Proveedor Adjudicado',
+           'Es Grupo', 'Es Pyme', 'Habilita Pago Adelantado', 'Liquidación',
+           'Obligación Ambiental', 'Obligaciones Postconsumo', 'Reversion',
+           'Estado BPIN', 'Código BPIN', 'Anno BPIN','EsPostConflicto',
+           'URLProceso', 'Destino Gasto',
+           'Origen de los Recursos', 'Puntos del Acuerdo',
+           'Pilares del Acuerdo', 'Nombre Representante Legal',
+           'Nacionalidad Representante Legal',
+           'Tipo de Identificación Representante Legal',
+           'Identificación Representante Legal', 'Género Representante Legal',#ojo
+           'Presupuesto General de la Nacion – PGN',
+           'Codigo Entidad', 'Codigo Proveedor', 'Objeto del Contrato']
+
+
+    data = pd.read_csv (
+      pathToData,
+      skiprows =0,
+      nrows = subsetsize,
+      usecols = names,
+      decimal = ".",)
+
+
+    return data
+
+
+
+def secop2_numeric(subsetsize = subsetsize, # Indices into (subsetting) the data.
+        pathToData=pathToData        
+        ) ->pd.DataFrame:
+    ...
+    names=['Codigo Proveedor'
+           ]
+
+
+    data = pd.read_csv (
+      pathToData,
+      skiprows =0,
+      nrows = subsetsize,
+      usecols=names,
+      decimal = ".",)
+
+    data['Codigo Proveedor']  = data['Codigo Proveedor']. apply ( lambda x:
+                float(x.replace(",",""))) 
+    return data
+
+
 
 def secop_for_prediction(
         pathToData=pathToData        
