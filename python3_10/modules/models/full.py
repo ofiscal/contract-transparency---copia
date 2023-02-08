@@ -128,8 +128,13 @@ def full_train(
                                  loss='mean_absolute_error',
                                  metrics=["KLDivergence","MeanSquaredError"])
     
+    print(categorical_vars)
+    print(transformer_vars)
+    print(output)
+    out=tf.stack(output)
+    print(out)
     model.fit(x=[categorical_vars,transformer_vars],
-              y=output,batch_size=8,epochs=1,validation_split=0.2,verbose=2,
+              y=out,batch_size=8,epochs=1,validation_split=0.2,verbose=2,
               callbacks=[model_checkpoint_callback])
     
     
@@ -155,8 +160,13 @@ data_pred=cleaning.secop_for_prediction(pathToData=pathToData)
 entrenar="TR"        
 data_desc=cleaning.secop2_general(pathToData =pathToData,subsetsize=20000)
 data_categ=cleaning.secop2_categoric(pathToData =pathToData,subsetsize=20000)
-
+#generamos un tokenizer por cada categoria y lo aplicamos
+for categoria in data_categ:
+    Tokenizer()
 data_value=cleaning.secop2_valor(pathToData =pathToData,subsetsize=20000)
+
+tokenizer= Tokenizer(num_words=argumentos.vocab_size,oov_token="<OOV>")
+tokenizer.fit_on_texts(X)
 
 
 tokenizer= Tokenizer(num_words=argumentos.vocab_size,oov_token="<OOV>")
