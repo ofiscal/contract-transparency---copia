@@ -18,6 +18,7 @@ import python3_10.modules.cleaning as cleaning
 from nltk.tokenize import word_tokenize
 import json
 import io
+import os
 #the structural definition of the transformer block and tokens was taken from
 #https://keras.io/examples/nlp/text_classification_with_transformer/ with 
 #some changes
@@ -162,21 +163,27 @@ data_pred=cleaning.secop_for_prediction(pathToData=pathToData)
 entrenar="TR"        
 data_desc=cleaning.secop2_general(pathToData =pathToData,subsetsize=20000)
 data_categ2=cleaning.secop2_categoric(pathToData =pathToData,subsetsize=20000)
-data_categ2=data_categ2.astype(str)
+data_categ2=data_categ2.astype(str).applymap(lambda x:[x.replace(" ","")])
+
 data_categ=pd.DataFrame()
 #generamos un tokenizer por cada categoria y lo aplicamos
 if True:
     for column in data_categ2:
         try:        
-            tokenizer= Tokenizer(num_words=argumentos.vocab_size,oov_token="<OOV>")
-            tokenizer.fit_on_texts(data_categ2[column])
+            tokenizer2= Tokenizer(num_words=argumentos.vocab_size,oov_token="<OOV>")
+            tokenizer2.fit_on_texts(data_categ2[column])
             #we generate series from the description text using the tokens instead of word
 
-            data_categ[column]=data_categ2[column].apply(lambda x:tokenizer.fit_on_texts(x))
-            tokenizer_json=tokenizer.to_json()
-            path=r"\trainedmodels\tokenizers"
-            with io.open(path+"\\"+column
-                         +"tokenizer.json","w",encoding="utf-8") as f:
+            data_categ[column]=data_categ2[column].apply(lambda x:tokenizer2.texts_to_sequences(x))
+
+            tokenizer_json=tokenizer2.to_json()
+            pathto_token=r"trainedmodels\tokenizers"+"\\"+column+"tokenizer.json"
+                     
+            try:
+                os.mknod(pathto_token)  
+            except:
+                ...
+            with io.open(pathto_token,"w",encoding="utf-8") as f:
                 f.write(json.dumps(tokenizer_json,ensure_ascii=False))
             print(column)
 
@@ -190,7 +197,7 @@ tokenizer= Tokenizer(num_words=argumentos.vocab_size,oov_token="<OOV>")
 tokenizer.fit_on_texts(data_desc)
 
 #we generate series from the description text using the tokens instead of word
-sequences=tokenizer.texts_to_sequences(data_desc)
+sequences=data_desc.applymap(lambda x:tokenizer.texts_to_sequences(x))
 #we padd them to make the sequences of equal length
 padded=pad_sequences(sequences,maxlen=argumentos.max_length)
 
@@ -199,7 +206,7 @@ padded=pad_sequences(sequences,maxlen=argumentos.max_length)
 
 full_train(categorical_vars=data_categ,
            transformer_vars=padded,
-           output=data_value,checkpointpath=path_to_models+"\model1_tr.hdf5")
+           output=data_value,checkpointpath=path_to_models+"\modelfull_tr.hdf5")
 
 
 

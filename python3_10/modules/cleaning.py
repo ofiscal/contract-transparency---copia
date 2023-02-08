@@ -67,22 +67,20 @@ def secop2_categoric(subsetsize = subsetsize, # Indices into (subsetting) the da
     ...
     names=['Nombre Entidad', 'Departamento', 'Ciudad',
            'Localización', 'Orden', 'Sector', 'Rama', 'Entidad Centralizada',
-           'Proceso de Compra', 'ID Contrato', 'Referencia del Contrato',
+           'Proceso de Compra', 'Referencia del Contrato',
            'Estado Contrato', 'Codigo de Categoria Principal','Tipo de Contrato',
            'Modalidad de Contratacion', 'Justificacion Modalidad de Contratacion',
            'Condiciones de Entrega',
-           'TipoDocProveedor', 'Documento Proveedor', 'Proveedor Adjudicado',
+           'TipoDocProveedor', 'Proveedor Adjudicado',
            'Es Grupo', 'Es Pyme', 'Habilita Pago Adelantado', 'Liquidación',
            'Obligación Ambiental', 'Obligaciones Postconsumo', 'Reversion',
-           'Estado BPIN', 'Código BPIN', 'Anno BPIN','EsPostConflicto',
-           'URLProceso', 'Destino Gasto',
+           'Estado BPIN', 'Código BPIN', 'Anno BPIN','EsPostConflicto', 'Destino Gasto',
            'Origen de los Recursos', 'Puntos del Acuerdo',
            'Pilares del Acuerdo', 'Nombre Representante Legal',
            'Nacionalidad Representante Legal',
            'Tipo de Identificación Representante Legal',
            'Identificación Representante Legal', 'Género Representante Legal',#ojo
-           'Presupuesto General de la Nacion – PGN',
-           'Codigo Entidad', 'Codigo Proveedor']
+           'Presupuesto General de la Nacion – PGN',]
 
 
     data = pd.read_csv (
