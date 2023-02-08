@@ -15,7 +15,9 @@ from python3_10.modules.models.models_main import argumentos
 from python3_10.modules.models.Transformers import TransformerBlock,TokenAndPositionEmbedding
 import numpy as np
 import python3_10.modules.cleaning as cleaning
-
+from nltk.tokenize import word_tokenize
+import json
+import io
 #the structural definition of the transformer block and tokens was taken from
 #https://keras.io/examples/nlp/text_classification_with_transformer/ with 
 #some changes
@@ -159,14 +161,29 @@ data_pred=cleaning.secop_for_prediction(pathToData=pathToData)
 #
 entrenar="TR"        
 data_desc=cleaning.secop2_general(pathToData =pathToData,subsetsize=20000)
-data_categ=cleaning.secop2_categoric(pathToData =pathToData,subsetsize=20000)
+data_categ2=cleaning.secop2_categoric(pathToData =pathToData,subsetsize=20000)
+data_categ2=data_categ2.astype(str)
+data_categ=pd.DataFrame()
 #generamos un tokenizer por cada categoria y lo aplicamos
-for categoria in data_categ:
-    Tokenizer()
-data_value=cleaning.secop2_valor(pathToData =pathToData,subsetsize=20000)
+if True:
+    for column in data_categ2:
+        try:        
+            tokenizer= Tokenizer(num_words=argumentos.vocab_size,oov_token="<OOV>")
+            tokenizer.fit_on_texts(data_categ2[column])
+            #we generate series from the description text using the tokens instead of word
 
-tokenizer= Tokenizer(num_words=argumentos.vocab_size,oov_token="<OOV>")
-tokenizer.fit_on_texts(X)
+            data_categ[column]=data_categ2[column].apply(lambda x:tokenizer.fit_on_texts(x))
+            tokenizer_json=tokenizer.to_json()
+            path=r"\trainedmodels\tokenizers"
+            with io.open(path+"\\"+column
+                         +"tokenizer.json","w",encoding="utf-8") as f:
+                f.write(json.dumps(tokenizer_json,ensure_ascii=False))
+            print(column)
+
+            
+        except KeyboardInterrupt:
+            print("variable "+ column+" was not found")
+data_value=cleaning.secop2_valor(pathToData =pathToData,subsetsize=20000)
 
 
 tokenizer= Tokenizer(num_words=argumentos.vocab_size,oov_token="<OOV>")

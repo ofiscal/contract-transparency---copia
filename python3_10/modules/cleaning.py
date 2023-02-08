@@ -82,7 +82,7 @@ def secop2_categoric(subsetsize = subsetsize, # Indices into (subsetting) the da
            'Tipo de Identificación Representante Legal',
            'Identificación Representante Legal', 'Género Representante Legal',#ojo
            'Presupuesto General de la Nacion – PGN',
-           'Codigo Entidad', 'Codigo Proveedor', 'Objeto del Contrato']
+           'Codigo Entidad', 'Codigo Proveedor']
 
 
     data = pd.read_csv (
