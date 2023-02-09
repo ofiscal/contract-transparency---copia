@@ -19,6 +19,7 @@ from nltk.tokenize import word_tokenize
 import json
 import io
 import os
+from keras.utils.vis_utils import plot_model
 #the structural definition of the transformer block and tokens was taken from
 #https://keras.io/examples/nlp/text_classification_with_transformer/ with 
 #some changes
@@ -136,10 +137,14 @@ def full_train(
     print(output)
     out=tf.stack(output)
     print(out)
+    [print(i.shape, i.dtype) for i in model.inputs]
+    [print(o.shape, o.dtype) for o in model.outputs]
+    [print(l.name, l.input_shape, l.dtype) for l in model.layers]
+
     model.fit(x=[categorical_vars,transformer_vars],
               y=out,batch_size=8,epochs=1,validation_split=0.2,verbose=2,
               callbacks=[model_checkpoint_callback])
-    
+
     
 
 #this will be later transplanted to the main file, but for now I need to test
@@ -161,8 +166,8 @@ data_pred=cleaning.secop_for_prediction(pathToData=pathToData)
 #we select from "TR" for trasformer "RN" for recurrent "NN" for neural network
 #
 entrenar="TR"        
-data_desc=cleaning.secop2_general(pathToData =pathToData,subsetsize=20000)
-data_categ2=cleaning.secop2_categoric(pathToData =pathToData,subsetsize=20000)
+data_desc=cleaning.secop2_general(pathToData =pathToData,subsetsize=2000)
+data_categ2=cleaning.secop2_categoric(pathToData =pathToData,subsetsize=2000)
 data_categ2=data_categ2.astype(str).applymap(lambda x:[x.replace(" ","")])
 
 data_categ=pd.DataFrame()
@@ -176,7 +181,7 @@ if True:
 
             data_categ[column]=data_categ2[column].apply(lambda x:tokenizer2.texts_to_sequences(x))
 
-            tokenizer_json=tokenizer2.to_json()
+            tokenizer_json2=tokenizer2.to_json()
             pathto_token=r"trainedmodels\tokenizers"+"\\"+column+"tokenizer.json"
                      
             try:
@@ -184,7 +189,7 @@ if True:
             except:
                 ...
             with io.open(pathto_token,"w",encoding="utf-8") as f:
-                f.write(json.dumps(tokenizer_json,ensure_ascii=False))
+                f.write(json.dumps(tokenizer_json2,ensure_ascii=False))
             print(column)
 
             
@@ -194,15 +199,22 @@ data_value=cleaning.secop2_valor(pathToData =pathToData,subsetsize=20000)
 
 
 tokenizer= Tokenizer(num_words=argumentos.vocab_size,oov_token="<OOV>")
-tokenizer.fit_on_texts(data_desc)
+tokenizer.fit_on_texts(data_desc["Descripcion del Proceso"])
+tokenizer_json=tokenizer.to_json()
+pathto_token=r"trainedmodels\tokenizers"+"\\"+"desctokenizer.json"
+with io.open(pathto_token,"w",encoding="utf-8") as f:
+    f.write(json.dumps(tokenizer_json,ensure_ascii=False))
 
 #we generate series from the description text using the tokens instead of word
 sequences=data_desc.applymap(lambda x:tokenizer.texts_to_sequences(x))
 #we padd them to make the sequences of equal length
-padded=pad_sequences(sequences,maxlen=argumentos.max_length)
+padded=sequences.applymap(lambda x:pad_sequences(x,maxlen=argumentos.max_length))
 
 
+model=create_model_full(categorical_vars=data_categ,
+           transformer_vars=padded)
 
+plot_model(model, to_file='model_plot.png', show_shapes=True, show_layer_names=True)
 
 full_train(categorical_vars=data_categ,
            transformer_vars=padded,

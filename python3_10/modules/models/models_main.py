@@ -32,7 +32,7 @@ class arguments():
         
         
 argumentos=arguments(
-    vocab_size=100000,
+    vocab_size=1000,
     embedding_dim=100,
     max_length=200,
     num_epochs=1,
