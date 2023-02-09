@@ -43,7 +43,7 @@ def transformer_layer(inputsx:layers.Input,
     x = layers.Dropout(0.5)(x)
     x = layers.Dense(100, activation="relu")(x)
     x = layers.Dropout(0.5)(x)
-    x = layers.Dense(1)(x)
+    x = layers.Dense(10)(x)
     return keras.Model(inputs=inputsx, outputs=x)
 
 
@@ -54,7 +54,7 @@ def categorical_layer(inputsy:layers.Input,
     embeddings = []
 
     for c in categorical_vars:
-        inputs = layers.Input(shape=(200,),name='input_sparse_'+c)
+        inputs = layers.Input(shape=(argumentos.max_length,),name='input_sparse_'+c)
 
         embedding = TokenAndPositionEmbedding(argumentos.max_word,
                                               argumentos.vocab_size,
@@ -69,7 +69,7 @@ def categorical_layer(inputsy:layers.Input,
     y=layers.Concatenate()(inputss)
     y = layers.Dense(100, activation="relu")(y)
     y=layers.Dropout(0.5)(y)
-    y=layers.Dense(1)(y)
+    y=layers.Dense(10)(y)
     return keras.Model(inputs=inputss, outputs=y)
 
 def numerical_layer(inputsz:pd.DataFrame(),
@@ -78,7 +78,7 @@ def numerical_layer(inputsz:pd.DataFrame(),
     z= layers.Dense(len(inputsz.columns))(inputsz)
     z = layers.Dense(100, activation="relu")(z)
     z = layers.Dropout(0.5)(z)
-    z = layers.Dense(1)(z)
+    z = layers.Dense(10)(z)
     return keras.Model(inputs=inputsz, outputs=z)
     
 def create_model_full(categorical_vars:pd.DataFrame(),
@@ -144,7 +144,7 @@ def full_train(
     [print(l.name, l.input_shape, l.dtype) for l in model.layers]
 
     model.fit(x=[categorical_vars,transformer_vars],
-              y=out,batch_size=8,epochs=100,validation_split=0.2,verbose=2,
+              y=out,batch_size=8,epochs=5000,validation_split=0.2,verbose=2,
               callbacks=[model_checkpoint_callback])
 
     
@@ -167,9 +167,10 @@ data_pred=cleaning.secop_for_prediction(pathToData=pathToData)
 #entrenar los modelos o continuar su entrenamiento
 #we select from "TR" for trasformer "RN" for recurrent "NN" for neural network
 #
-entrenar="TR"        
-data_desc=cleaning.secop2_general(pathToData =pathToData,subsetsize=2000)
-data_categ2=cleaning.secop2_categoric(pathToData =pathToData,subsetsize=2000)
+entrenar="TR" 
+setsize=20000       
+data_desc=cleaning.secop2_general(pathToData =pathToData,subsetsize=setsize)
+data_categ2=cleaning.secop2_categoric(pathToData =pathToData,subsetsize=setsize)
 data_categ2=data_categ2.astype(str).applymap(lambda x:[x.replace(" ","")])
 
 data_categ=pd.DataFrame()
@@ -197,7 +198,7 @@ if True:
             
         except KeyboardInterrupt:
             print("variable "+ column+" was not found")
-data_value=cleaning.secop2_valor(pathToData =pathToData,subsetsize=20000)
+data_value=cleaning.secop2_valor(pathToData =pathToData,subsetsize=setsize)
 
 
 tokenizer= Tokenizer(num_words=argumentos.vocab_size,oov_token="<OOV>")
