@@ -54,7 +54,7 @@ def categorical_layer(inputsy:layers.Input,
     embeddings = []
 
     for c in categorical_vars:
-        inputs = layers.Input(shape=(1,),name='input_sparse_'+c)
+        inputs = layers.Input(shape=(200,),name='input_sparse_'+c)
 
         embedding = TokenAndPositionEmbedding(argumentos.max_word,
                                               argumentos.vocab_size,
@@ -62,10 +62,10 @@ def categorical_layer(inputsy:layers.Input,
         inputss.append(inputs)
         embeddings.append(embedding)
 
-    input_numeric = keras.Input(shape=(1,),name='input_constinuous')
-    embedding_numeric = layers.Dense(16)(input_numeric)
-    embeddings.append(embedding_numeric)
-    inputss.append(input_numeric)
+    #input_numeric = keras.Input(shape=(1,),name='input_continuous')
+    #embedding_numeric = layers.Dense(16)(input_numeric)
+    #embeddings.append(embedding_numeric)
+    #inputss.append(input_numeric)
     y=layers.Concatenate()(inputss)
     y = layers.Dense(100, activation="relu")(y)
     y=layers.Dropout(0.5)(y)
@@ -144,7 +144,7 @@ def full_train(
     [print(l.name, l.input_shape, l.dtype) for l in model.layers]
 
     model.fit(x=[categorical_vars,transformer_vars],
-              y=out,batch_size=8,epochs=1,validation_split=0.2,verbose=2,
+              y=out,batch_size=8,epochs=100,validation_split=0.2,verbose=2,
               callbacks=[model_checkpoint_callback])
 
     
@@ -218,7 +218,7 @@ padded=pad_sequences(sequences,maxlen=argumentos.max_length)
 model=create_model_full(categorical_vars=data_categ,
            transformer_vars=padded)
 
-#plot_model(model, to_file='model_plot.png', show_shapes=True, show_layer_names=True)
+plot_model(model, to_file='model_plot.png', show_shapes=True, show_layer_names=True)
 
 full_train(categorical_vars=data_categ,
            transformer_vars=padded,
@@ -226,5 +226,3 @@ full_train(categorical_vars=data_categ,
 
 
 
-
-    
