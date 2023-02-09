@@ -34,7 +34,7 @@ class arguments():
 argumentos=arguments(
     vocab_size=1000,
     embedding_dim=100,
-    max_length=200,
+    max_length=53,
     num_epochs=1,
     learning_rate=0.001,
     decay=0.00001,

@@ -40,9 +40,9 @@ def transformer_layer(inputsx:layers.Input,
                                          argumentos.ff_dim)
     x = transformer_block(x)
     x = layers.GlobalAveragePooling1D()(x)
-    x = layers.Dropout(0.5)(x)
+    x = layers.Dropout(0.2)(x)
     x = layers.Dense(100, activation="relu")(x)
-    x = layers.Dropout(0.5)(x)
+    x = layers.Dropout(0.2)(x)
     x = layers.Dense(10)(x)
     return keras.Model(inputs=inputsx, outputs=x)
 
@@ -54,7 +54,8 @@ def categorical_layer(inputsy:layers.Input,
     embeddings = []
 
     for c in categorical_vars:
-        inputs = layers.Input(shape=(argumentos.max_length,),name='input_sparse_'+c)
+        print(c)
+        inputs = layers.Input(shape=(1,),name='input_sparse_'+c)
 
         embedding = TokenAndPositionEmbedding(argumentos.max_word,
                                               argumentos.vocab_size,
@@ -68,7 +69,7 @@ def categorical_layer(inputsy:layers.Input,
     #inputss.append(input_numeric)
     y=layers.Concatenate()(inputss)
     y = layers.Dense(100, activation="relu")(y)
-    y=layers.Dropout(0.5)(y)
+    y=layers.Dropout(0.2)(y)
     y=layers.Dense(10)(y)
     return keras.Model(inputs=inputss, outputs=y)
 
@@ -77,7 +78,7 @@ def numerical_layer(inputsz:pd.DataFrame(),
                     ):
     z= layers.Dense(len(inputsz.columns))(inputsz)
     z = layers.Dense(100, activation="relu")(z)
-    z = layers.Dropout(0.5)(z)
+    z = layers.Dropout(0.2)(z)
     z = layers.Dense(10)(z)
     return keras.Model(inputs=inputsz, outputs=z)
     
@@ -87,7 +88,7 @@ def create_model_full(categorical_vars:pd.DataFrame(),
         ):
     argumentos
     inputsx = layers.Input(shape=(argumentos.max_length,))
-    inputsy = layers.Input(shape=(argumentos.max_word,))
+    inputsy = layers.Input(shape=(len(categorical_vars.columns),))
 
   
     #the next layers are paralelized
@@ -104,11 +105,11 @@ def create_model_full(categorical_vars:pd.DataFrame(),
 
     print(categor)
     print(transf)
-    combined = layers.concatenate([transf.output, categor.output])
+    combined = layers.concatenate([ categor.output,transf.output])
     ka = layers.Dense(2, activation="relu")(combined)
     ka = layers.Dense(1)(ka)
     
-    model = keras.Model(inputs=[transf.input, categor.input],
+    model = keras.Model(inputs=[categor.input,transf.input],
                         outputs=ka)
     return model
     
@@ -135,15 +136,12 @@ def full_train(
                                  metrics=["KLDivergence","MeanSquaredError"])
     
     print(categorical_vars)
-    print(transformer_vars)
-    print(output)
+    inputvar=list()
+    for i in categorical_vars:
+        inputvar.append(categorical_vars[i])
+    inputvar.append(transformer_vars)
     out=tf.stack(output)
-    print(out)
-    [print(i.shape, i.dtype) for i in model.inputs]
-    [print(o.shape, o.dtype) for o in model.outputs]
-    [print(l.name, l.input_shape, l.dtype) for l in model.layers]
-
-    model.fit(x=[categorical_vars,transformer_vars],
+    model.fit(x=inputvar,
               y=out,batch_size=8,epochs=5000,validation_split=0.2,verbose=2,
               callbacks=[model_checkpoint_callback])
 
@@ -157,7 +155,7 @@ pathToData = r"data/sucio/SECOP_II_-_Contratos_Electr_nicos.csv"
 path_to_result=r"data\resultados"
 #this cant be change, they are how rn where train (will be changed manually)
 subsetsize=500000
-max_length=200
+
 
 mean=163740447
 ssd=1716771980
@@ -198,7 +196,8 @@ if True:
             
         except KeyboardInterrupt:
             print("variable "+ column+" was not found")
-data_value=cleaning.secop2_valor(pathToData =pathToData,subsetsize=setsize)
+data_value=cleaning.secop2_valor(pathToData =pathToData,subsetsize=setsize).apply(
+    lambda x:(x-mean)/ssd)
 
 
 tokenizer= Tokenizer(num_words=argumentos.vocab_size,oov_token="<OOV>")
