@@ -66,9 +66,8 @@ def secop2_categoric(subsetsize = subsetsize, # Indices into (subsetting) the da
         ) ->pd.DataFrame:
     ...
     names=['Nombre Entidad', 'Departamento', 'Ciudad',
-           'Localización', 'Orden', 'Sector', 'Rama', 'Entidad Centralizada',
-           'Proceso de Compra', 'Referencia del Contrato',
-           'Estado Contrato', 'Codigo de Categoria Principal','Tipo de Contrato',
+           'Orden', 'Sector', 'Rama', 'Entidad Centralizada',
+           'Estado Contrato','Tipo de Contrato',
            'Modalidad de Contratacion', 'Justificacion Modalidad de Contratacion',
            'Condiciones de Entrega',
            'TipoDocProveedor', 'Proveedor Adjudicado',
@@ -80,14 +79,14 @@ def secop2_categoric(subsetsize = subsetsize, # Indices into (subsetting) the da
            'Nacionalidad Representante Legal',
            'Tipo de Identificación Representante Legal',
            'Identificación Representante Legal', 'Género Representante Legal',#ojo
-           'Presupuesto General de la Nacion – PGN',]
+           ]
 
-
+    names2=['Nombre Entidad']
     data = pd.read_csv (
       pathToData,
       skiprows =0,
       nrows = subsetsize,
-      usecols = names,
+      usecols = names2,
       decimal = ".",)
 
 

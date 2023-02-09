@@ -52,6 +52,7 @@ def categorical_layer(inputsy:layers.Input,
                       )->keras.layers:
     inputss = []
     embeddings = []
+
     for c in categorical_vars:
         inputs = layers.Input(shape=(1,),name='input_sparse_'+c)
 
@@ -60,6 +61,7 @@ def categorical_layer(inputsy:layers.Input,
                                               argumentos.embedding_dim)
         inputss.append(inputs)
         embeddings.append(embedding)
+
     input_numeric = keras.Input(shape=(1,),name='input_constinuous')
     embedding_numeric = layers.Dense(16)(input_numeric)
     embeddings.append(embedding_numeric)
@@ -179,7 +181,7 @@ if True:
             tokenizer2.fit_on_texts(data_categ2[column])
             #we generate series from the description text using the tokens instead of word
 
-            data_categ[column]=data_categ2[column].apply(lambda x:tokenizer2.texts_to_sequences(x))
+            data_categ[column]=data_categ2[column].apply(lambda x:int(tokenizer2.texts_to_sequences(x)[0][0]))
 
             tokenizer_json2=tokenizer2.to_json()
             pathto_token=r"trainedmodels\tokenizers"+"\\"+column+"tokenizer.json"
@@ -206,15 +208,17 @@ with io.open(pathto_token,"w",encoding="utf-8") as f:
     f.write(json.dumps(tokenizer_json,ensure_ascii=False))
 
 #we generate series from the description text using the tokens instead of word
-sequences=data_desc.applymap(lambda x:tokenizer.texts_to_sequences(x))
+sequences=tokenizer.texts_to_sequences(data_desc["Descripcion del Proceso"])
 #we padd them to make the sequences of equal length
-padded=sequences.applymap(lambda x:pad_sequences(x,maxlen=argumentos.max_length))
+padded=pad_sequences(sequences,maxlen=argumentos.max_length)
+#transform the data in np array
+
 
 
 model=create_model_full(categorical_vars=data_categ,
            transformer_vars=padded)
 
-plot_model(model, to_file='model_plot.png', show_shapes=True, show_layer_names=True)
+#plot_model(model, to_file='model_plot.png', show_shapes=True, show_layer_names=True)
 
 full_train(categorical_vars=data_categ,
            transformer_vars=padded,
