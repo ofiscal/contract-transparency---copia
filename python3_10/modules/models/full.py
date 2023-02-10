@@ -15,7 +15,7 @@ from python3_10.modules.models.models_main import argumentos
 from python3_10.modules.models.Transformers import TransformerBlock,TokenAndPositionEmbedding
 import numpy as np
 import python3_10.modules.cleaning as cleaning
-from nltk.tokenize import word_tokenize
+
 import json
 import io
 import os
@@ -106,7 +106,7 @@ def create_model_full(categorical_vars:pd.DataFrame(),
     print(categor)
     print(transf)
     combined = layers.concatenate([ categor.output,transf.output])
-    ka = layers.Dense(50, activation="relu")(combined)
+    ka = layers.Dense(50)(combined)
     ka = layers.Dense(1)(ka)
     
     model = keras.Model(inputs=[categor.input,transf.input],
@@ -142,7 +142,7 @@ def full_train(
     inputvar.append(transformer_vars)
     out=tf.stack(output)
     model.fit(x=inputvar,
-              y=out,batch_size=32,epochs=15,validation_split=0.2,verbose=2,
+              y=out,batch_size=32,epochs=3,validation_split=0.2,verbose=2,
               callbacks=[model_checkpoint_callback])
 
     
@@ -166,7 +166,7 @@ data_pred=cleaning.secop_for_prediction(pathToData=pathToData)
 #we select from "TR" for trasformer "RN" for recurrent "NN" for neural network
 #
 entrenar="TR" 
-setsize=200000       
+setsize=10000     
 data_desc=cleaning.secop2_general(pathToData =pathToData,subsetsize=setsize)
 data_categ2=cleaning.secop2_categoric(pathToData =pathToData,subsetsize=setsize)
 data_categ2=data_categ2.astype(str).applymap(lambda x:[x.replace(" ","")])
@@ -228,11 +228,11 @@ inputvar=list()
 for i in data_categ:
     inputvar.append(data_categ[i])
 inputvar.append(padded)
-predict=pd.DataFrame(model.predict(inputvar)).apply(lambda x:(x*ssd)+mean)
+predict=pd.DataFrame(model.predict(inputvar))
 data= pd.read_csv (
       pathToData,
       skiprows =0,
-      nrows = 200000,
+      nrows = setsize,
       decimal = ".")
 
 data["predict"]=predict
