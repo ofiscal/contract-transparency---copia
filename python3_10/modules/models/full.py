@@ -41,9 +41,9 @@ def transformer_layer(inputsx:layers.Input,
     x = transformer_block(x)
     x = layers.GlobalAveragePooling1D()(x)
     x = layers.Dropout(0.2)(x)
-    x = layers.Dense(100, activation="relu")(x)
+    x = layers.Dense(1000, activation="relu")(x)
     x = layers.Dropout(0.2)(x)
-    x = layers.Dense(10)(x)
+    x = layers.Dense(500)(x)
     return keras.Model(inputs=inputsx, outputs=x)
 
 
@@ -68,9 +68,9 @@ def categorical_layer(inputsy:layers.Input,
     #embeddings.append(embedding_numeric)
     #inputss.append(input_numeric)
     y=layers.Concatenate()(inputss)
-    y = layers.Dense(100, activation="relu")(y)
+    y = layers.Dense(1000, activation="relu")(y)
     y=layers.Dropout(0.2)(y)
-    y=layers.Dense(10)(y)
+    y=layers.Dense(500)(y)
     return keras.Model(inputs=inputss, outputs=y)
 
 def numerical_layer(inputsz:pd.DataFrame(),
@@ -106,7 +106,7 @@ def create_model_full(categorical_vars:pd.DataFrame(),
     print(categor)
     print(transf)
     combined = layers.concatenate([ categor.output,transf.output])
-    ka = layers.Dense(2, activation="relu")(combined)
+    ka = layers.Dense(50, activation="relu")(combined)
     ka = layers.Dense(1)(ka)
     
     model = keras.Model(inputs=[categor.input,transf.input],
@@ -142,7 +142,7 @@ def full_train(
     inputvar.append(transformer_vars)
     out=tf.stack(output)
     model.fit(x=inputvar,
-              y=out,batch_size=8,epochs=5000,validation_split=0.2,verbose=2,
+              y=out,batch_size=32,epochs=15,validation_split=0.2,verbose=2,
               callbacks=[model_checkpoint_callback])
 
     
@@ -166,7 +166,7 @@ data_pred=cleaning.secop_for_prediction(pathToData=pathToData)
 #we select from "TR" for trasformer "RN" for recurrent "NN" for neural network
 #
 entrenar="TR" 
-setsize=20000       
+setsize=200000       
 data_desc=cleaning.secop2_general(pathToData =pathToData,subsetsize=setsize)
 data_categ2=cleaning.secop2_categoric(pathToData =pathToData,subsetsize=setsize)
 data_categ2=data_categ2.astype(str).applymap(lambda x:[x.replace(" ","")])
@@ -223,6 +223,22 @@ plot_model(model, to_file='model_plot.png', show_shapes=True, show_layer_names=T
 full_train(categorical_vars=data_categ,
            transformer_vars=padded,
            output=data_value,checkpointpath=path_to_models+"\modelfull_tr.hdf5")
+
+inputvar=list()
+for i in data_categ:
+    inputvar.append(data_categ[i])
+inputvar.append(padded)
+predict=pd.DataFrame(model.predict(inputvar)).apply(lambda x:(x*ssd)+mean)
+data= pd.read_csv (
+      pathToData,
+      skiprows =0,
+      nrows = 200000,
+      decimal = ".")
+
+data["predict"]=predict
+data["real"]=data_value["Valor del Contrato"]
+data.to_excel(path_to_result+r"\results3.xlsx")
+
 
 
 

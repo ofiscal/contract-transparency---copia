@@ -57,7 +57,7 @@ def secop2_valor(subsetsize = subsetsize, # Indices into (subsetting) the data.
       . apply ( lambda x:
                 float(x.replace(",","")) )
       . apply( lambda x:
-               x if x < 4e10 else 4e10 ) )
+               x if x < 1e10 else 1e10 ) )
     return data
 
 
@@ -93,7 +93,7 @@ def secop2_categoric(subsetsize = subsetsize, # Indices into (subsetting) the da
       pathToData,
       skiprows =0,
       nrows = subsetsize,
-      usecols = names2,
+      usecols = names,
       decimal = ".",)
 
 
