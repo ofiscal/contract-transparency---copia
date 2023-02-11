@@ -144,7 +144,7 @@ def full_train(
     inputvar.append(transformer_vars)
     out=tf.stack(output)
     model.fit(x=inputvar,
-              y=out,batch_size=32,epochs=3,validation_split=0.2,verbose=2,
+              y=out,batch_size=32,epochs=16,validation_split=0.2,verbose=2,
               callbacks=[model_checkpoint_callback])
 
     
@@ -224,7 +224,7 @@ plot_model(model, to_file='model_plot.png', show_shapes=True, show_layer_names=T
 
 full_train(categorical_vars=data_categ,
            transformer_vars=padded,
-           output=data_value,checkpointpath=path_to_models+"\modelfull_tr.hdf5".
+           output=data_value,checkpointpath=path_to_models+"\modelfull_tr.hdf5",
            load=True)
 
 
