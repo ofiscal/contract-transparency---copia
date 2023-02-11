@@ -118,7 +118,8 @@ def full_train(
         transformer_vars:pd.DataFrame(),
         output:pd.DataFrame(),
         checkpointpath,
-        
+        load,
+
         )->tf.keras.Model:
     
     model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(
@@ -134,7 +135,8 @@ def full_train(
                                  decay=argumentos.decay),
                                  loss='mean_absolute_error',
                                  metrics=["KLDivergence","MeanSquaredError"])
-    
+    if load:
+        model.load_weights(checkpointpath)
     print(categorical_vars)
     inputvar=list()
     for i in categorical_vars:
@@ -222,7 +224,10 @@ plot_model(model, to_file='model_plot.png', show_shapes=True, show_layer_names=T
 
 full_train(categorical_vars=data_categ,
            transformer_vars=padded,
-           output=data_value,checkpointpath=path_to_models+"\modelfull_tr.hdf5")
+           output=data_value,checkpointpath=path_to_models+"\modelfull_tr.hdf5".
+           load=True)
+
+
 
 inputvar=list()
 for i in data_categ:
