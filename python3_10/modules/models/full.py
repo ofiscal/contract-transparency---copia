@@ -15,7 +15,7 @@ from python3_10.modules.models.models_main import argumentos
 from python3_10.modules.models.Transformers import TransformerBlock,TokenAndPositionEmbedding
 import numpy as np
 import python3_10.modules.cleaning as cleaning
-
+from sklearn.metrics import r2_score
 import json
 import io
 import os
@@ -144,8 +144,9 @@ def full_train(
     inputvar.append(transformer_vars)
     out=tf.stack(output)
     model.fit(x=inputvar,
-              y=out,batch_size=32,epochs=16,validation_split=0.2,verbose=2,
+              y=out,batch_size=8,epochs=1,validation_split=0.2,verbose=2,
               callbacks=[model_checkpoint_callback])
+    return inputvar
 
     
 
@@ -222,17 +223,14 @@ model=create_model_full(categorical_vars=data_categ,
 
 plot_model(model, to_file='model_plot.png', show_shapes=True, show_layer_names=True)
 
-full_train(categorical_vars=data_categ,
+inputvar=full_train(categorical_vars=data_categ,
            transformer_vars=padded,
            output=data_value,checkpointpath=path_to_models+"\modelfull_tr.hdf5",
            load=True)
 
 
 
-inputvar=list()
-for i in data_categ:
-    inputvar.append(data_categ[i])
-inputvar.append(padded)
+
 predict=pd.DataFrame(model.predict(inputvar))
 data= pd.read_csv (
       pathToData,
@@ -245,5 +243,5 @@ data["real"]=data_value["Valor del Contrato"]
 data.to_excel(path_to_result+r"\results3.xlsx")
 
 
-
+r2_score(data["predict"],data["real"])
 
