@@ -140,3 +140,16 @@ def secop_for_prediction(
     
     
     return data
+
+def new_data(
+        identi:str,#key to assert new contratcs
+                X:pd.Series,#series old
+                y:pd.Series#series new
+                )->pd.Series:
+        #this function should receive two series and identify the new values in
+        #the series, then return the new row in the new data set to load the 
+        #new contract... or other things
+        
+        
+
+
