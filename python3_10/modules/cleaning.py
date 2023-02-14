@@ -2,7 +2,7 @@
 
 from typing import Tuple
 import pandas as pd
-
+import numpy as np
 
 # TODO : Should the following two things
 # be defined in open code (i.e. importable into another module)
@@ -143,13 +143,39 @@ def secop_for_prediction(
 
 def new_data(
         identi:str,#key to assert new contratcs
-                X:pd.Series,#series old
-                y:pd.Series#series new
+                X:pd.DataFrame,#series old
+                y:pd.DataFrame#series new
                 )->pd.Series:
         #this function should receive two series and identify the new values in
         #the series, then return the new row in the new data set to load the 
         #new contract... or other things
+
+        new= y.merge(X,on=identi, how="outer",indicator=True,
+                       suffixes=('', '_y')
+                       ).query('_merge=="left_only"')
+        new.drop(new.filter(regex='_y$').columns, axis=1, inplace=True)
+        return new
         
-        
+def new_data_test(
+        ):
+    X = pd.DataFrame(
+    {
+        "col1": ["a", "a", "b", "b", "a"],
+        "col2": [1.0, 2.0, 3.0, np.nan, 5.0],
+        "col3": [1.0, 2.0, 3.0, 4.0, 5.0]
+    },
+    columns=["col1", "col2", "col3"],
+    )
+    y = X.copy()
+    y.loc[0, 'col1'] = 'c'
+    y.loc[2, 'col3'] = 4.0
+    y
+    print(new_data(identi="col1",X=X,y=y))   
+
+
+
+
+
+
 
 
