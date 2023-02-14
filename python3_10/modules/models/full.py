@@ -40,9 +40,9 @@ def transformer_layer(inputsx:layers.Input,
                                          argumentos.ff_dim)
     x = transformer_block(x)
     x = layers.GlobalAveragePooling1D()(x)
-    x = layers.Dropout(0.2)(x)
+
     x = layers.Dense(1000, activation="relu")(x)
-    x = layers.Dropout(0.2)(x)
+
     x = layers.Dense(500)(x)
     return keras.Model(inputs=inputsx, outputs=x)
 
@@ -69,7 +69,7 @@ def categorical_layer(inputsy:layers.Input,
     #inputss.append(input_numeric)
     y=layers.Concatenate()(inputss)
     y = layers.Dense(1000, activation="relu")(y)
-    y=layers.Dropout(0.2)(y)
+
     y=layers.Dense(500)(y)
     return keras.Model(inputs=inputss, outputs=y)
 
@@ -78,7 +78,7 @@ def numerical_layer(inputsz:pd.DataFrame(),
                     ):
     z= layers.Dense(len(inputsz.columns))(inputsz)
     z = layers.Dense(100, activation="relu")(z)
-    z = layers.Dropout(0.2)(z)
+
     z = layers.Dense(10)(z)
     return keras.Model(inputs=inputsz, outputs=z)
     
@@ -144,7 +144,7 @@ def full_train(
     inputvar.append(transformer_vars)
     out=tf.stack(output)
     model.fit(x=inputvar,
-              y=out,batch_size=8,epochs=1,validation_split=0.2,verbose=2,
+              y=output,batch_size=8,epochs=6,validation_split=0.2,verbose=2,
               callbacks=[model_checkpoint_callback])
     return inputvar
 
