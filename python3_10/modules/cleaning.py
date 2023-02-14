@@ -3,7 +3,7 @@
 from typing import Tuple
 import pandas as pd
 import numpy as np
-
+import os
 # TODO : Should the following two things
 # be defined in open code (i.e. importable into another module)
 # the way they are now,
@@ -38,8 +38,8 @@ def secop2_general (
 
 
 
-def secop2_valor(subsetsize = subsetsize, # Indices into (subsetting) the data.
-        pathToData=pathToData        
+def secop2_valor(subsetsize:int = subsetsize, # Indices into (subsetting) the data.
+        pathToData: str | os.PathLike =pathToData       
         ) ->pd.DataFrame:
     ...
     
@@ -62,7 +62,7 @@ def secop2_valor(subsetsize = subsetsize, # Indices into (subsetting) the data.
 
 
 def secop2_categoric(subsetsize = subsetsize, # Indices into (subsetting) the data.
-        pathToData=pathToData        
+        pathToData: str | os.PathLike=pathToData        
         ) ->pd.DataFrame:
     ...
     names=['Nombre Entidad', 'Departamento', 'Ciudad',
@@ -102,7 +102,7 @@ def secop2_categoric(subsetsize = subsetsize, # Indices into (subsetting) the da
 
 
 def secop2_numeric(subsetsize = subsetsize, # Indices into (subsetting) the data.
-        pathToData=pathToData        
+        pathToData: str | os.PathLike=pathToData        
         ) ->pd.DataFrame:
     ...
     names=['Codigo Proveedor'
@@ -123,7 +123,7 @@ def secop2_numeric(subsetsize = subsetsize, # Indices into (subsetting) the data
 
 
 def secop_for_prediction(
-        pathToData=pathToData        
+        pathToData: str | os.PathLike=pathToData        
         ) ->pd.DataFrame:
     #load the predicted data
     data = pd.read_csv (
