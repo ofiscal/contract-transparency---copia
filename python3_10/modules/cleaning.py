@@ -16,16 +16,7 @@ def secop2_general (
     pathToData = pathToData
     ) ->  pd.DataFrame:
 
-  # TODO : This should be rewritten as:
-  # def clean ( skiprows : pd.Series) -> pd.DataFrame:
-  #   df = pd.read_csv (
-  #     ...
-  #     skiprows = skiprows,
-  #     ... )
-  #   df["Valor del Contrato"] = ...
-  #   return df
-  # test = clean( skiprows = subset[0] )
-  # datatest = clean( skiprows = ... )
+
 
     data = pd.read_csv (
       pathToData,
@@ -99,7 +90,28 @@ def secop2_categoric(subsetsize = subsetsize, # Indices into (subsetting) the da
 
     return data
 
+def secop2_date(subsetsize = subsetsize, # Indices into (subsetting) the data.
+        pathToData: str | os.PathLike=pathToData        
+        ) ->pd.DataFrame:
+    ...
+    names=[ 'Fecha de Firma', 'Fecha de Inicio del Contrato',
+             'Fecha de Fin del Contrato', 'Fecha de Inicio de Ejecucion',
+             'Fecha de Fin de Ejecucion'
+           ]
 
+
+    """
+
+    """
+    data = pd.read_csv (
+      pathToData,
+      skiprows =0,
+      nrows = subsetsize,
+      usecols = names,
+      decimal = ".",)
+    data=pd.to_datetime(data)
+
+    return data
 
 def secop2_numeric(subsetsize = subsetsize, # Indices into (subsetting) the data.
         pathToData: str | os.PathLike=pathToData        

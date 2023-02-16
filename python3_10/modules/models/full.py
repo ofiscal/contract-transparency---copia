@@ -144,7 +144,7 @@ def full_train(
     inputvar.append(transformer_vars)
     out=tf.stack(output)
     model.fit(x=inputvar,
-              y=output,batch_size=8,epochs=6,validation_split=0.2,verbose=2,
+              y=output,batch_size=8,epochs=12,validation_split=0.2,verbose=2,
               callbacks=[model_checkpoint_callback])
     return inputvar
 
