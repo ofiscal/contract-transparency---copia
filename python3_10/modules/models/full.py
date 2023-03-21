@@ -21,6 +21,7 @@ import io
 import os
 from keras.utils.vis_utils import plot_model
 import sys
+import mlflow
 #the structural definition of the transformer block and tokens was taken from
 #https://keras.io/examples/nlp/text_classification_with_transformer/ with 
 #some changes
@@ -55,9 +56,10 @@ def categorical_layer(inputsy:layers.Input,
     embeddings = []
 
     for c in categorical_vars:
-        print(c)
-        inputs = layers.Input(shape=(1,),name='input_sparse_'+c)
 
+        inputs = layers.Input(shape=(1,),name='input_sparse_'+c)
+        print('input_sparse_'+c)
+        
         embedding = TokenAndPositionEmbedding(argumentos.max_word,
                                               argumentos.vocab_size,
                                               argumentos.embedding_dim)
@@ -150,9 +152,11 @@ def full_train(
     inputvar.append(transformer_vars)
     out=tf.stack(output)
     model.fit(x=inputvar,
-              y=output,batch_size=8,epochs=12,validation_split=0.2,verbose=2,
+              y=output,batch_size=8,epochs=1,validation_split=0.2,verbose=2,
               callbacks=[model_checkpoint_callback])
-    return inputvar
+    export_path = os.path.join('/tmp/', 'keras_export')
+    tf.keras.models.save_model(model, checkpointpath)
+    return model,inputvar
 
 def full_train_categ():
     ...
@@ -176,7 +180,7 @@ data_pred=cleaning.secop_for_prediction(pathToData=pathToData)
 #we select from "TR" for trasformer "RN" for recurrent "NN" for neural network
 #
 entrenar="TR" 
-setsize=10000     
+setsize=100   
 data_desc=cleaning.secop2_general(pathToData =pathToData,subsetsize=setsize)
 data_categ2=cleaning.secop2_categoric(pathToData =pathToData,subsetsize=setsize)
 data_categ2=data_categ2.astype(str).applymap(lambda x:[x.replace(" ","")])
@@ -226,16 +230,13 @@ padded=pad_sequences(sequences,maxlen=argumentos.max_length)
 
 
 
-model=create_model_full(categorical_vars=data_categ,
-           transformer_vars=padded)
+#model=create_model_full(categorical_vars=data_categ,
+#          transformer_vars=padded)
 
-plot_model(model, to_file='model_plot.png', show_shapes=True, show_layer_names=True)
 
-inputvar=full_train(categorical_vars=data_categ,
-           transformer_vars=padded,
-           output=data_value,checkpointpath=path_to_models+"\modelfull_tr.hdf5",
-           load=True)
-
+model,inputvar=full_train(categorical_vars=data_categ,transformer_vars=padded,
+                          output=data_value,checkpointpath=path_to_models+"\modelfull_tr.hdf5",
+                          load=False)
 
 
 

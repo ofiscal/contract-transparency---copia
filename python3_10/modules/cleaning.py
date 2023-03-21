@@ -64,7 +64,7 @@ def secop2_categoric(subsetsize = subsetsize, # Indices into (subsetting) the da
            'TipoDocProveedor', 'Proveedor Adjudicado',
            'Es Grupo', 'Es Pyme', 'Habilita Pago Adelantado', 'Liquidación',
            'Obligación Ambiental', 'Obligaciones Postconsumo', 'Reversion',
-           'Estado BPIN', 'Código BPIN', 'Anno BPIN','EsPostConflicto', 'Destino Gasto',
+           'Estado BPIN', 'Código BPIN','EsPostConflicto', 'Destino Gasto',
            'Origen de los Recursos', 'Puntos del Acuerdo',
            'Pilares del Acuerdo', 'Nombre Representante Legal',
            'Nacionalidad Representante Legal',
@@ -78,6 +78,7 @@ def secop2_categoric(subsetsize = subsetsize, # Indices into (subsetting) the da
             'Origen de los Recursos', 
             'Género Representante Legal', 'Rama']
     """
+    'Anno BPIN'
 
     """
     data = pd.read_csv (

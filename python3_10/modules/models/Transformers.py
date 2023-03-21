@@ -38,14 +38,27 @@ class TransformerBlock(layers.Layer):
         ffn_output = self.ffn(out1)
         ffn_output = self.dropout2(ffn_output, training=training)
         return self.layernorm2(out1 + ffn_output)
-    #aaaa
+    def get_config(self):
+
+        config = super().get_config().copy()
+        config.update({
+            'embed_dim': self.embed_dim,
+            'num_heads': self.num_heads,
+            'ff_dim': self.ff_dim,
+            'rate': self.rate,
+
+        })
+        return config
 
 class TokenAndPositionEmbedding(layers.Layer):
     def __init__(self, maxlen, vocab_size, embed_dim):
         super().__init__()
         self.token_emb = layers.Embedding(input_dim=vocab_size, output_dim=embed_dim)
         self.pos_emb = layers.Embedding(input_dim=maxlen, output_dim=embed_dim)
-
+        self.vocab_size=vocab_size
+        self.embed_dim=embed_dim
+        self.maxlen=maxlen
+        
     def call(self, x):
         maxlen = tf.shape(x)[-1]
         positions = tf.range(start=0, limit=maxlen, delta=1)
