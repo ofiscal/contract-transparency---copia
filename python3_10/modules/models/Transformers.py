@@ -52,7 +52,16 @@ class TokenAndPositionEmbedding(layers.Layer):
         positions = self.pos_emb(positions)
         x = self.token_emb(x)
         return x + positions
-    
+    def get_config(self):
+
+        config = super().get_config().copy()
+        config.update({
+            'vocab_size': self.vocab_size,
+            'embed_dim': self.embed_dim,
+            'maxlen': self.maxlen,
+
+        })
+        return config
 
              
 def create_model_tr(
