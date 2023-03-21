@@ -30,7 +30,15 @@ class TransformerBlock(layers.Layer):
         self.layernorm2 = layers.LayerNormalization(epsilon=1e-6)
         self.dropout1 = layers.Dropout(rate)
         self.dropout2 = layers.Dropout(rate)
-
+        self.num_heads=num_heads
+        self.ff_dim=ff_dim
+        self.rate=rate
+        self.embed_dim=embed_dim
+        
+        
+        
+        
+        
     def call(self, inputs, training):
         attn_output = self.att(inputs, inputs)
         attn_output = self.dropout1(attn_output, training=training)
