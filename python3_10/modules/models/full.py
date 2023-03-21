@@ -20,6 +20,7 @@ import json
 import io
 import os
 from keras.utils.vis_utils import plot_model
+import sys
 #the structural definition of the transformer block and tokens was taken from
 #https://keras.io/examples/nlp/text_classification_with_transformer/ with 
 #some changes
@@ -41,9 +42,9 @@ def transformer_layer(inputsx:layers.Input,
     x = transformer_block(x)
     x = layers.GlobalAveragePooling1D()(x)
 
-    x = layers.Dense(1000, activation="relu")(x)
+    x = layers.Dense(2000, activation="relu",kernel_regularizer="l1_l2")(x)
 
-    x = layers.Dense(500)(x)
+    x = layers.Dense(700)(x)
     return keras.Model(inputs=inputsx, outputs=x)
 
 
@@ -68,16 +69,18 @@ def categorical_layer(inputsy:layers.Input,
     #embeddings.append(embedding_numeric)
     #inputss.append(input_numeric)
     y=layers.Concatenate()(inputss)
-    y = layers.Dense(1000, activation="relu")(y)
+    y = layers.Dense(2000, activation="relu",
+                     kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.2, l2=0.2))(y)
 
-    y=layers.Dense(500)(y)
+    y=layers.Dense(700)(y)
     return keras.Model(inputs=inputss, outputs=y)
 
 def numerical_layer(inputsz:pd.DataFrame(),
                     numerical_vars:pd.DataFrame()
                     ):
     z= layers.Dense(len(inputsz.columns))(inputsz)
-    z = layers.Dense(100, activation="relu")(z)
+    z = layers.Dense(100, activation="relu",
+                     kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.2, l2=0.2))(z)
 
     z = layers.Dense(10)(z)
     return keras.Model(inputs=inputsz, outputs=z)
@@ -106,7 +109,8 @@ def create_model_full(categorical_vars:pd.DataFrame(),
     print(categor)
     print(transf)
     combined = layers.concatenate([ categor.output,transf.output])
-    ka = layers.Dense(50)(combined)
+    ka = layers.Dense(50,
+                      kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.2, l2=0.2))(combined)
     ka = layers.Dense(1)(ka)
     
     model = keras.Model(inputs=[categor.input,transf.input],
@@ -135,6 +139,8 @@ def full_train(
                                  decay=argumentos.decay),
                                  loss='mean_absolute_error',
                                  metrics=["KLDivergence","MeanSquaredError"])
+    log_dir=r"C:\Users\usuario\Documents\contract-transparency - copia\python3_10\modules\models\tensor_board"
+    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
     if load:
         model.load_weights(checkpointpath)
     print(categorical_vars)
@@ -148,7 +154,8 @@ def full_train(
               callbacks=[model_checkpoint_callback])
     return inputvar
 
-    
+def full_train_categ():
+    ...
 
 #this will be later transplanted to the main file, but for now I need to test
 #the code somewhere and tdidn´t find a better place
@@ -199,6 +206,7 @@ if True:
             
         except KeyboardInterrupt:
             print("variable "+ column+" was not found")
+    
 data_value=cleaning.secop2_valor(pathToData =pathToData,subsetsize=setsize).apply(
     lambda x:(x-mean)/ssd)
 

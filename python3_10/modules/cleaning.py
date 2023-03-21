@@ -30,7 +30,7 @@ def secop2_general (
 
 
 def secop2_valor(subsetsize:int = subsetsize, # Indices into (subsetting) the data.
-        pathToData: str | os.PathLike =pathToData       
+        pathToData: str =pathToData       
         ) ->pd.DataFrame:
     ...
     
@@ -53,7 +53,7 @@ def secop2_valor(subsetsize:int = subsetsize, # Indices into (subsetting) the da
 
 
 def secop2_categoric(subsetsize = subsetsize, # Indices into (subsetting) the data.
-        pathToData: str | os.PathLike=pathToData        
+        pathToData: str =pathToData        
         ) ->pd.DataFrame:
     ...
     names=['Nombre Entidad', 'Departamento', 'Ciudad',
@@ -91,7 +91,7 @@ def secop2_categoric(subsetsize = subsetsize, # Indices into (subsetting) the da
     return data
 
 def secop2_date(subsetsize = subsetsize, # Indices into (subsetting) the data.
-        pathToData: str | os.PathLike=pathToData        
+        pathToData: str =pathToData        
         ) ->pd.DataFrame:
     ...
     names=[ 'Fecha de Firma', 'Fecha de Inicio del Contrato',
@@ -114,7 +114,7 @@ def secop2_date(subsetsize = subsetsize, # Indices into (subsetting) the data.
     return data
 
 def secop2_numeric(subsetsize = subsetsize, # Indices into (subsetting) the data.
-        pathToData: str | os.PathLike=pathToData        
+        pathToData: str =pathToData        
         ) ->pd.DataFrame:
     ...
     names=['Codigo Proveedor'
@@ -135,7 +135,7 @@ def secop2_numeric(subsetsize = subsetsize, # Indices into (subsetting) the data
 
 
 def secop_for_prediction(
-        pathToData: str | os.PathLike=pathToData        
+        pathToData: str =pathToData        
         ) ->pd.DataFrame:
     #load the predicted data
     data = pd.read_csv (
