@@ -153,8 +153,8 @@ def full_train(
     out=tf.stack(output)
     model.fit(x=inputvar,
               y=output,batch_size=8,epochs=1,validation_split=0.2,verbose=2,
-              callbacks=[model_checkpoint_callback])
-    export_path = os.path.join('/tmp/', 'keras_export')
+              callbacks=[model_checkpoint_callback,tensorboard_callback])
+    export_path = os.path.join(r'/tmp/', 'keras_export')
     tf.keras.models.save_model(model, checkpointpath)
     return model,inputvar
 
