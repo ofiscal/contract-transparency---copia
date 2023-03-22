@@ -136,13 +136,13 @@ def full_train(
     
     model=create_model_full(categorical_vars= categorical_vars,
                             transformer_vars=transformer_vars)
-    
+    export_path = os.path.join(r"C:\Users\usuario\Documents\contract-transparency-copia\python3_10\modules\models\tensor_board\keras_export")
     model.compile(optimizer=Adam(learning_rate=argumentos.learning_rate,
                                  decay=argumentos.decay),
                                  loss='mean_absolute_error',
                                  metrics=["KLDivergence","MeanSquaredError"])
     log_dir=r"C:\Users\usuario\Documents\contract-transparency - copia\python3_10\modules\models\tensor_board"
-    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
+    tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=export_path, histogram_freq=1)
     if load:
         model.load_weights(checkpointpath)
     print(categorical_vars)
@@ -154,8 +154,8 @@ def full_train(
     model.fit(x=inputvar,
               y=output,batch_size=8,epochs=1,validation_split=0.2,verbose=2,
               callbacks=[model_checkpoint_callback,tensorboard_callback])
-    export_path = os.path.join(r'/tmp/', 'keras_export')
-    tf.keras.models.save_model(model, checkpointpath)
+
+    tf.keras.models.save_model(model, export_path+"modelfull_tr.hdf5" )
     return model,inputvar
 
 def full_train_categ():
@@ -216,14 +216,14 @@ data_value=cleaning.secop2_valor(pathToData =pathToData,subsetsize=setsize).appl
 
 
 tokenizer= Tokenizer(num_words=argumentos.vocab_size,oov_token="<OOV>")
-tokenizer.fit_on_texts(data_desc["Descripcion del Proceso"])
+tokenizer.fit_on_texts(data_desc["Descripcion del Proceso".lower()])
 tokenizer_json=tokenizer.to_json()
 pathto_token=r"trainedmodels\tokenizers"+"\\"+"desctokenizer.json"
 with io.open(pathto_token,"w",encoding="utf-8") as f:
     f.write(json.dumps(tokenizer_json,ensure_ascii=False))
 
 #we generate series from the description text using the tokens instead of word
-sequences=tokenizer.texts_to_sequences(data_desc["Descripcion del Proceso"])
+sequences=tokenizer.texts_to_sequences(data_desc["Descripcion del Proceso".lower()])
 #we padd them to make the sequences of equal length
 padded=pad_sequences(sequences,maxlen=argumentos.max_length)
 #transform the data in np array
@@ -248,7 +248,7 @@ data= pd.read_csv (
       decimal = ".")
 
 data["predict"]=predict
-data["real"]=data_value["Valor del Contrato"]
+data["real"]=data_value["Valor del Contrato".lower()]
 data.to_excel(path_to_result+r"\results3.xlsx")
 
 

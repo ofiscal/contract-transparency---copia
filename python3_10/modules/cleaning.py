@@ -24,7 +24,7 @@ def secop2_general (
       nrows = subsetsize,
       decimal = ".",
       usecols = ["Descripcion del Proceso"])
-
+    data.columns= data.columns.str.lower()
     return data
 
 
@@ -49,6 +49,7 @@ def secop2_valor(subsetsize:int = subsetsize, # Indices into (subsetting) the da
                 float(x.replace(",","")) )
       . apply( lambda x:
                x if x < 1e10 else 1e10 ) )
+    data.columns= data.columns.str.lower()
     return data
 
 
@@ -60,7 +61,7 @@ def secop2_categoric(subsetsize = subsetsize, # Indices into (subsetting) the da
            'Orden', 'Sector', 'Rama', 'Entidad Centralizada',
            'Estado Contrato','Tipo de Contrato',
            'Modalidad de Contratacion', 'Justificacion Modalidad de Contratacion',
-           'Condiciones de Entrega',
+          
            'TipoDocProveedor', 'Proveedor Adjudicado',
            'Es Grupo', 'Es Pyme', 'Habilita Pago Adelantado', 'Liquidación',
            'Obligación Ambiental', 'Obligaciones Postconsumo', 'Reversion',
@@ -79,15 +80,17 @@ def secop2_categoric(subsetsize = subsetsize, # Indices into (subsetting) the da
             'Género Representante Legal', 'Rama']
     """
     'Anno BPIN'
-
+ 'Condiciones de Entrega',
     """
+    
+    
     data = pd.read_csv (
       pathToData,
       skiprows =0,
       nrows = subsetsize,
       usecols = names,
       decimal = ".",)
-
+    data.columns= data.columns.str.lower()
 
     return data
 
@@ -111,7 +114,7 @@ def secop2_date(subsetsize = subsetsize, # Indices into (subsetting) the data.
       usecols = names,
       decimal = ".",)
     data=pd.to_datetime(data)
-
+    data.columns= data.columns.str.lower()
     return data
 
 def secop2_numeric(subsetsize = subsetsize, # Indices into (subsetting) the data.
@@ -131,6 +134,7 @@ def secop2_numeric(subsetsize = subsetsize, # Indices into (subsetting) the data
 
     data['Codigo Proveedor']  = data['Codigo Proveedor']. apply ( lambda x:
                 float(x.replace(",",""))) 
+    data.columns= data.columns.str.lower()
     return data
 
 
@@ -150,7 +154,7 @@ def secop_for_prediction(
                 float(x.replace(",","")) )
       . apply( lambda x:
                x if x < 4e10 else 4e10 ) )
-    
+    data.columns= data.columns.str.lower()    
     
     return data
 
