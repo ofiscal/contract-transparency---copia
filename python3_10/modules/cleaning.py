@@ -10,10 +10,13 @@ import os
 # or only defined in the function below that uses them?
 pathToData = r"data/SECOP_II_-_Contratos_Electr_nicos.csv"
 subsetsize=10000
-
+rand_porc=0.5
+rand_seed=24111996
 def secop2_general (
     subsetsize = subsetsize, # Indices into (subsetting) the data.
-    pathToData = pathToData
+    rand:int=rand_porc,
+    pathToData = pathToData,
+    rand_seed=rand_seed
     ) ->  pd.DataFrame:
 
 
@@ -25,12 +28,14 @@ def secop2_general (
       decimal = ".",
       usecols = ["Descripcion del Proceso"])
     data.columns= data.columns.str.lower()
-    return data
+    return data.sample(frac=rand_porc,random_state=rand_seed)
 
 
 
 def secop2_valor(subsetsize:int = subsetsize, # Indices into (subsetting) the data.
-        pathToData: str =pathToData       
+                 rand:int=rand_porc,
+        pathToData: str =pathToData,
+        rand_seed=rand_seed
         ) ->pd.DataFrame:
     ...
     
@@ -50,11 +55,13 @@ def secop2_valor(subsetsize:int = subsetsize, # Indices into (subsetting) the da
       . apply( lambda x:
                x if x < 1e10 else 1e10 ) )
     data.columns= data.columns.str.lower()
-    return data
+    return data.sample(frac=rand_porc,random_state=rand_seed)
 
 
 def secop2_categoric(subsetsize = subsetsize, # Indices into (subsetting) the data.
-        pathToData: str =pathToData        
+                     rand:int=rand_porc,
+        pathToData: str =pathToData,
+        rand_seed=rand_seed        
         ) ->pd.DataFrame:
     ...
     names=['Nombre Entidad', 'Departamento', 'Ciudad',
@@ -92,10 +99,12 @@ def secop2_categoric(subsetsize = subsetsize, # Indices into (subsetting) the da
       decimal = ".",)
     data.columns= data.columns.str.lower()
 
-    return data
+    return data.sample(frac=rand_porc,random_state=rand_seed)
 
 def secop2_date(subsetsize = subsetsize, # Indices into (subsetting) the data.
-        pathToData: str =pathToData        
+                rand:int=rand_porc,
+        pathToData: str =pathToData,
+        rand_seed=rand_seed        
         ) ->pd.DataFrame:
     ...
     names=[ 'Fecha de Firma', 'Fecha de Inicio del Contrato',
@@ -115,10 +124,12 @@ def secop2_date(subsetsize = subsetsize, # Indices into (subsetting) the data.
       decimal = ".",)
     data=pd.to_datetime(data)
     data.columns= data.columns.str.lower()
-    return data
+    return data.sample(frac=rand_porc)
 
 def secop2_numeric(subsetsize = subsetsize, # Indices into (subsetting) the data.
-        pathToData: str =pathToData        
+                   rand:int=rand_porc,
+        pathToData: str =pathToData,
+        rand_seed=rand_seed        
         ) ->pd.DataFrame:
     ...
     names=['Codigo Proveedor'
@@ -135,7 +146,7 @@ def secop2_numeric(subsetsize = subsetsize, # Indices into (subsetting) the data
     data['Codigo Proveedor']  = data['Codigo Proveedor']. apply ( lambda x:
                 float(x.replace(",",""))) 
     data.columns= data.columns.str.lower()
-    return data
+    return data.sample(frac=rand_porc,random_state=rand_seed)
 
 
 

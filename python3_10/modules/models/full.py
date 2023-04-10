@@ -152,7 +152,7 @@ def full_train(
     inputvar.append(transformer_vars)
     out=tf.stack(output)
     model.fit(x=inputvar,
-              y=output,batch_size=8,epochs=10,validation_split=0.2,verbose=2,
+              y=output,batch_size=8,epochs=1,validation_split=0.2,verbose=2,
               callbacks=[model_checkpoint_callback,tensorboard_callback])
 
     tf.keras.models.save_model(model, export_path+"modelfull_tr.hdf5" )
@@ -235,8 +235,8 @@ padded=pad_sequences(sequences,maxlen=argumentos.max_length)
 
 
 model,inputvar=full_train(categorical_vars=data_categ,transformer_vars=padded,
-                          output=data_value,checkpointpath=path_to_models+"\modelfull_tr.hdf5",
-                          load=False)
+                          output=data_value,checkpointpath=path_to_models+r"\modelfull_tr.hdf5",
+                          load=True)
 
 
 
@@ -254,3 +254,4 @@ data.to_excel(path_to_result+r"\results3.xlsx")
 
 r2_score(data["predict"],data["real"])
 
+model.plot_model()
