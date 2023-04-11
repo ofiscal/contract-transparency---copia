@@ -165,7 +165,7 @@ def full_train_categ():
 #the code somewhere and tdidn´t find a better place
 #some paths to where things are
 path_to_models=r"trainedmodels"
-pathToData = r"data/sucio/SECOP_II_-_Contratos_Electr_nicos.csv"
+pathToData = r"data/sucio/CONTRATOS_COVID(20-22).csv"
 path_to_result=r"data\resultados"
 #this cant be change, they are how rn where train (will be changed manually)
 subsetsize=500000
@@ -180,7 +180,7 @@ data_pred=cleaning.secop_for_prediction(pathToData=pathToData)
 #we select from "TR" for trasformer "RN" for recurrent "NN" for neural network
 #
 entrenar="TR" 
-setsize=100000   
+setsize=200000   
 data_desc=cleaning.secop2_general(pathToData =pathToData,subsetsize=setsize)
 data_categ2=cleaning.secop2_categoric(pathToData =pathToData,subsetsize=setsize)
 data_categ2=data_categ2.astype(str).applymap(lambda x:[x.replace(" ","")])
@@ -216,14 +216,14 @@ data_value=cleaning.secop2_valor(pathToData =pathToData,subsetsize=setsize).appl
 
 
 tokenizer= Tokenizer(num_words=argumentos.vocab_size,oov_token="<OOV>")
-tokenizer.fit_on_texts(data_desc["Descripcion del Proceso".lower()])
+tokenizer.fit_on_texts(data_desc['detalle del objeto a contratar'].astype(str))
 tokenizer_json=tokenizer.to_json()
 pathto_token=r"trainedmodels\tokenizers"+"\\"+"desctokenizer.json"
 with io.open(pathto_token,"w",encoding="utf-8") as f:
     f.write(json.dumps(tokenizer_json,ensure_ascii=False))
 
 #we generate series from the description text using the tokens instead of word
-sequences=tokenizer.texts_to_sequences(data_desc["Descripcion del Proceso".lower()])
+sequences=tokenizer.texts_to_sequences(data_desc['detalle del objeto a contratar'].astype(str))
 #we padd them to make the sequences of equal length
 padded=pad_sequences(sequences,maxlen=argumentos.max_length)
 #transform the data in np array
@@ -236,7 +236,7 @@ padded=pad_sequences(sequences,maxlen=argumentos.max_length)
 
 model,inputvar=full_train(categorical_vars=data_categ,transformer_vars=padded,
                           output=data_value,checkpointpath=path_to_models+r"\modelfull_tr.hdf5",
-                          load=True)
+                          load=False)
 
 
 
