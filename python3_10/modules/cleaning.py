@@ -26,7 +26,7 @@ def secop2_general (
       skiprows =0,
       nrows = subsetsize,
       decimal = ".",
-      usecols = ["Descripcion del Proceso"])
+      usecols = ["Detalle del Objeto a Contratar"])
     data.columns= data.columns.str.lower()
     return data.sample(frac=rand_porc,random_state=rand_seed)
 
@@ -46,14 +46,14 @@ def secop2_valor(subsetsize:int = subsetsize, # Indices into (subsetting) the da
       skiprows =0,
       nrows = subsetsize,
       decimal = ".",
-      usecols = ["Valor del Contrato"])
+      usecols = ["VALOR NORM"])
 
-    data ["Valor del Contrato"] = (
-      data["Valor del Contrato"]
+    data ["VALOR NORM"] = (
+      data["VALOR NORM"]
       . apply ( lambda x:
-                float(x.replace(",","")) )
+                float(x.replace(",","").replace("$","")))
       . apply( lambda x:
-               x if x < 1e10 else 1e10 ) )
+               x if x < 1e100 else 1e10 ) )
     data.columns= data.columns.str.lower()
     return data.sample(frac=rand_porc,random_state=rand_seed)
 
@@ -64,32 +64,14 @@ def secop2_categoric(subsetsize = subsetsize, # Indices into (subsetting) the da
         rand_seed=rand_seed        
         ) ->pd.DataFrame:
     ...
-    names=['Nombre Entidad', 'Departamento', 'Ciudad',
-           'Orden', 'Sector', 'Rama', 'Entidad Centralizada',
-           'Estado Contrato','Tipo de Contrato',
-           'Modalidad de Contratacion', 'Justificacion Modalidad de Contratacion',
-          
-           'TipoDocProveedor', 'Proveedor Adjudicado',
-           'Es Grupo', 'Es Pyme', 'Habilita Pago Adelantado', 'Liquidación',
-           'Obligación Ambiental', 'Obligaciones Postconsumo', 'Reversion',
-           'Estado BPIN', 'Código BPIN','EsPostConflicto', 'Destino Gasto',
-           'Origen de los Recursos', 'Puntos del Acuerdo',
-           'Pilares del Acuerdo', 'Nombre Representante Legal',
-           'Nacionalidad Representante Legal',
-           'Tipo de Identificación Representante Legal',
-           'Identificación Representante Legal', 'Género Representante Legal',#ojo
+    names=['Nombre de la Entidad', 'Anno Cargue SECOP','Anno Firma del Contrato',
+           'Nivel Entidad','Orden Entidad','ENTIDAD NORMALIZADA','NIT de la Entidad',
+           'TIPO PROCESO NORM','Estado del Proceso','Causal de Otras Formas de Contratacion Directa',
+           'ID Regimen de Contratacion','OBJETO NORM','Tipo de Contrato',
+           'Municipio Obtencion','Municipio Entrega','Municipios Ejecucion','Nombre Grupo',
+           'Nombre Familia','Nombre Clase',"MPPIO ENTIDAD NORM","DEPTO ENTIDAD NORM","CAUSALES CONT DIRECTA NORM"
            ]
 
-    names2=['Es Grupo', 'Es Pyme','TipoDocProveedor','Nombre Entidad',
-            'Departamento','Ciudad','Estado Contrato',
-            'Tipo de Contrato','Nacionalidad Representante Legal',
-            'Origen de los Recursos', 
-            'Género Representante Legal', 'Rama']
-    """
-    'Anno BPIN'
- 'Condiciones de Entrega',
-    """
-    
     
     data = pd.read_csv (
       pathToData,
@@ -159,12 +141,12 @@ def secop_for_prediction(
       skiprows =[1,subsetsize],
       nrows = subsetsize,
       decimal = ".",)
-    data ["Valor del Contrato"] = (
-      data["Valor del Contrato"]
+    data ["VALOR NORM"] = (
+      data["VALOR NORM"]
       . apply ( lambda x:
-                float(x.replace(",","")) )
+                float(x.replace(",","").replace("$","")))
       . apply( lambda x:
-               x if x < 4e10 else 4e10 ) )
+               x if x < 4e100 else 4e100 ) )
     data.columns= data.columns.str.lower()    
     
     return data
