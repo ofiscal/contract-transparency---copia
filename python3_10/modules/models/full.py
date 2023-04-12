@@ -168,7 +168,7 @@ def full_train_categ():
 #some paths to where things are
 path_to_models=r"trainedmodels"
 pathToData = r"data/sucio/CONTRATOS_COVID(20-22).csv"
-path_to_result=r"data\resultados"
+path_to_result=r"data/resultados"
 #this cant be change, they are how rn where train (will be changed manually)
 
 
