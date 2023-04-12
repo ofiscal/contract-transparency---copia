@@ -154,7 +154,7 @@ def full_train(
     out=tf.stack(output)
     if fit:
         model.fit(x=inputvar,
-                  y=output,batch_size=8,epochs=1,validation_split=0.2,verbose=2,
+                  y=output,batch_size=8,epochs=10,validation_split=0.2,verbose=2,
                   callbacks=[model_checkpoint_callback,tensorboard_callback])
 
     tf.keras.models.save_model(model, export_path+"modelfull_tr.hdf5" )
@@ -266,7 +266,7 @@ data= pd.read_csv (
 
 data["predict"]=predict
 data["real"]=data_value["VALOR NORM".lower()]
-data.to_excel(path_to_result+r"\results3.xlsx")
+data.to_csv(path_to_result+r"\results3.csv")
 datatesting=data.dropna(subset=["real"])
 
 r2_score(datatesting["predict"],datatesting["real"])
