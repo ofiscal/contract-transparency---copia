@@ -8,7 +8,7 @@ import tensorflow as tf
 import pandas as pd
 from tensorflow import keras
 from tensorflow.keras import layers
-from tensorflow.keras.preprocessing.text import Tokenizer
+from tensorflow.keras.preprocessing.text import Tokenizer,tokenizer_from_json
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.optimizers import Adam
 from python3_10.modules.models.models_main import argumentos
@@ -125,6 +125,7 @@ def full_train(
         output:pd.DataFrame(),
         checkpointpath,
         load,
+        fit=True,
 
         )->tf.keras.Model:
     
@@ -151,9 +152,10 @@ def full_train(
         inputvar.append(categorical_vars[i])
     inputvar.append(transformer_vars)
     out=tf.stack(output)
-    model.fit(x=inputvar,
-              y=output,batch_size=8,epochs=1,validation_split=0.2,verbose=2,
-              callbacks=[model_checkpoint_callback,tensorboard_callback])
+    if fit:
+        model.fit(x=inputvar,
+                  y=output,batch_size=8,epochs=1,validation_split=0.2,verbose=2,
+                  callbacks=[model_checkpoint_callback,tensorboard_callback])
 
     tf.keras.models.save_model(model, export_path+"modelfull_tr.hdf5" )
     return model,inputvar
@@ -180,14 +182,14 @@ data_pred=cleaning.secop_for_prediction(pathToData=pathToData)
 #we select from "TR" for trasformer "RN" for recurrent "NN" for neural network
 #
 entrenar="TR" 
-setsize=200000   
+setsize=2000000   
 data_desc=cleaning.secop2_general(pathToData =pathToData,subsetsize=setsize)
 data_categ2=cleaning.secop2_categoric(pathToData =pathToData,subsetsize=setsize)
 data_categ2=data_categ2.astype(str).applymap(lambda x:[x.replace(" ","")])
 
 data_categ=pd.DataFrame()
-#generamos un tokenizer por cada categoria y lo aplicamos
-if True:
+#generamos un tokenizer por cada categoria y lo aplicamos, mantener en falso
+if False:
     for column in data_categ2:
         try:        
             tokenizer2= Tokenizer(num_words=argumentos.vocab_size,oov_token="<OOV>")
@@ -211,17 +213,30 @@ if True:
         except KeyboardInterrupt:
             print("variable "+ column+" was not found")
     
-data_value=cleaning.secop2_valor(pathToData =pathToData,subsetsize=setsize).apply(
-    lambda x:(x-mean)/ssd)
+    data_value=cleaning.secop2_valor(pathToData =pathToData,subsetsize=setsize).apply(
+        lambda x:(x-mean)/ssd)
+    
+    
+    tokenizer= Tokenizer(num_words=argumentos.vocab_size,oov_token="<OOV>")
+    tokenizer.fit_on_texts(data_desc['detalle del objeto a contratar'].astype(str))
+    tokenizer_json=tokenizer.to_json()
+    pathto_token=r"trainedmodels\tokenizers"+"\\"+"desctokenizer.json"
+    with io.open(pathto_token,"w",encoding="utf-8") as f:
+        f.write(json.dumps(tokenizer_json,ensure_ascii=False))
 
+for column in data_categ2:
+    try:
+
+        pathto_token=r"trainedmodels\tokenizers"+"\\"+column+"tokenizer.json"
+        f = open(pathto_token)
+        tokenizer2=tokenizer_from_json(json.load(f))
+        data_categ[column]=data_categ2[column].apply(lambda x:int(tokenizer2.texts_to_sequences(x)[0][0]))
+    except:
+        ...
 
 tokenizer= Tokenizer(num_words=argumentos.vocab_size,oov_token="<OOV>")
-tokenizer.fit_on_texts(data_desc['detalle del objeto a contratar'].astype(str))
-tokenizer_json=tokenizer.to_json()
-pathto_token=r"trainedmodels\tokenizers"+"\\"+"desctokenizer.json"
-with io.open(pathto_token,"w",encoding="utf-8") as f:
-    f.write(json.dumps(tokenizer_json,ensure_ascii=False))
-
+f = open(r"trainedmodels\tokenizers"+"\\"+"desctokenizer.json")
+tokenizer=tokenizer_from_json(json.load(f))
 #we generate series from the description text using the tokens instead of word
 sequences=tokenizer.texts_to_sequences(data_desc['detalle del objeto a contratar'].astype(str))
 #we padd them to make the sequences of equal length
@@ -236,7 +251,7 @@ padded=pad_sequences(sequences,maxlen=argumentos.max_length)
 
 model,inputvar=full_train(categorical_vars=data_categ,transformer_vars=padded,
                           output=data_value,checkpointpath=path_to_models+r"\modelfull_tr.hdf5",
-                          load=False)
+                          load=True,fit=False)
 
 
 
@@ -244,14 +259,14 @@ predict=pd.DataFrame(model.predict(inputvar))
 data= pd.read_csv (
       pathToData,
       skiprows =0,
-      nrows = setsize,
+      nrows = setsize/2,
       decimal = ".")
 
 data["predict"]=predict
-data["real"]=data_value["Valor del Contrato".lower()]
+data["real"]=data_value["VALOR NORM".lower()]
 data.to_excel(path_to_result+r"\results3.xlsx")
+datatesting=data.dropna(subset=["real"])
 
-
-r2_score(data["predict"],data["real"])
+r2_score(datatesting["predict"],datatesting["real"])
 
 model.plot_model()
