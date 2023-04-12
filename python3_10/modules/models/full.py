@@ -170,7 +170,7 @@ path_to_models=r"trainedmodels"
 pathToData = r"data/sucio/CONTRATOS_COVID(20-22).csv"
 path_to_result=r"data\resultados"
 #this cant be change, they are how rn where train (will be changed manually)
-subsetsize=500000
+
 
 
 mean=163740447
@@ -213,8 +213,7 @@ if False:
         except KeyboardInterrupt:
             print("variable "+ column+" was not found")
     
-    data_value=cleaning.secop2_valor(pathToData =pathToData,subsetsize=setsize).apply(
-        lambda x:(x-mean)/ssd)
+
     
     
     tokenizer= Tokenizer(num_words=argumentos.vocab_size,oov_token="<OOV>")
@@ -234,6 +233,9 @@ for column in data_categ2:
     except:
         ...
 
+
+data_value=cleaning.secop2_valor(pathToData =pathToData,subsetsize=setsize).apply(
+        lambda x:(x-mean)/ssd)
 tokenizer= Tokenizer(num_words=argumentos.vocab_size,oov_token="<OOV>")
 f = open(r"trainedmodels\tokenizers"+"\\"+"desctokenizer.json")
 tokenizer=tokenizer_from_json(json.load(f))
@@ -251,7 +253,7 @@ padded=pad_sequences(sequences,maxlen=argumentos.max_length)
 
 model,inputvar=full_train(categorical_vars=data_categ,transformer_vars=padded,
                           output=data_value,checkpointpath=path_to_models+r"\modelfull_tr.hdf5",
-                          load=True,fit=False)
+                          load=True,fit=True)
 
 
 
