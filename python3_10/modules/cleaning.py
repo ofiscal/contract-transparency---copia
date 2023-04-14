@@ -10,7 +10,7 @@ import os
 # or only defined in the function below that uses them?
 pathToData = r"data/SECOP_II_-_Contratos_Electr_nicos.csv"
 subsetsize=10000
-rand_porc=0.5
+rand_porc=1
 rand_seed=24111996
 def secop2_general (
     subsetsize = subsetsize, # Indices into (subsetting) the data.
@@ -28,7 +28,7 @@ def secop2_general (
       decimal = ".",
       usecols = ["Detalle del Objeto a Contratar"])
     data.columns= data.columns.str.lower()
-    return data.sample(frac=rand_porc,random_state=rand_seed)
+    return data
 
 
 
@@ -55,7 +55,7 @@ def secop2_valor(subsetsize:int = subsetsize, # Indices into (subsetting) the da
       . apply( lambda x:
                x if x < 1e100 else 1e10 ) )
     data.columns= data.columns.str.lower()
-    return data.sample(frac=rand_porc,random_state=rand_seed)
+    return data
 
 
 def secop2_categoric(subsetsize = subsetsize, # Indices into (subsetting) the data.
@@ -81,7 +81,7 @@ def secop2_categoric(subsetsize = subsetsize, # Indices into (subsetting) the da
       decimal = ".",)
     data.columns= data.columns.str.lower()
 
-    return data.sample(frac=rand_porc,random_state=rand_seed)
+    return data
 
 def secop2_date(subsetsize = subsetsize, # Indices into (subsetting) the data.
                 rand:int=rand_porc,
@@ -106,7 +106,7 @@ def secop2_date(subsetsize = subsetsize, # Indices into (subsetting) the data.
       decimal = ".",)
     data=pd.to_datetime(data)
     data.columns= data.columns.str.lower()
-    return data.sample(frac=rand_porc)
+    return data
 
 def secop2_numeric(subsetsize = subsetsize, # Indices into (subsetting) the data.
                    rand:int=rand_porc,
@@ -128,7 +128,7 @@ def secop2_numeric(subsetsize = subsetsize, # Indices into (subsetting) the data
     data['Codigo Proveedor']  = data['Codigo Proveedor']. apply ( lambda x:
                 float(x.replace(",",""))) 
     data.columns= data.columns.str.lower()
-    return data.sample(frac=rand_porc,random_state=rand_seed)
+    return data
 
 
 
@@ -146,7 +146,7 @@ def secop_for_prediction(
       . apply ( lambda x:
                 float(x.replace(",","").replace("$","")))
       . apply( lambda x:
-               x if x < 4e100 else 4e100 ) )
+               x) )
     data.columns= data.columns.str.lower()    
     
     return data

@@ -43,9 +43,9 @@ def transformer_layer(inputsx:layers.Input,
     x = transformer_block(x)
     x = layers.GlobalAveragePooling1D()(x)
 
-    x = layers.Dense(2000, activation="relu",kernel_regularizer="l1_l2")(x)
-
-    x = layers.Dense(700)(x)
+    x = layers.Dense(200, activation="relu",kernel_regularizer="l1_l2")(x)
+    x=tf.keras.layers.Dropout(.2, input_shape=(200,))(x)
+    x = layers.Dense(70)(x)
     return keras.Model(inputs=inputsx, outputs=x)
 
 
@@ -71,10 +71,10 @@ def categorical_layer(inputsy:layers.Input,
     #embeddings.append(embedding_numeric)
     #inputss.append(input_numeric)
     y=layers.Concatenate()(inputss)
-    y = layers.Dense(2000, activation="relu",
+    y = layers.Dense(20, activation="relu",
                      kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.2, l2=0.2))(y)
-
-    y=layers.Dense(700)(y)
+    y=tf.keras.layers.Dropout(.2, input_shape=(20,))(y)
+    y=layers.Dense(7)(y)
     return keras.Model(inputs=inputss, outputs=y)
 
 def numerical_layer(inputsz:pd.DataFrame(),
@@ -84,7 +84,7 @@ def numerical_layer(inputsz:pd.DataFrame(),
     z = layers.Dense(100, activation="relu",
                      kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.2, l2=0.2))(z)
 
-    z = layers.Dense(10)(z)
+    z = layers.Dense(70)(z)
     return keras.Model(inputs=inputsz, outputs=z)
     
 def create_model_full(categorical_vars:pd.DataFrame(),
@@ -140,8 +140,8 @@ def full_train(
     export_path = os.path.join(r"C:\Users\usuario\Documents\contract-transparency-copia\python3_10\modules\models\tensor_board\keras_export")
     model.compile(optimizer=Adam(learning_rate=argumentos.learning_rate,
                                  decay=argumentos.decay),
-                                 loss='mean_absolute_error',
-                                 metrics=["KLDivergence","MeanSquaredError"])
+                                 loss="MeanSquaredError",
+                                 metrics=["KLDivergence",'mean_absolute_error'])
     log_dir=r"C:\Users\usuario\Documents\contract-transparency - copia\python3_10\modules\models\tensor_board"
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=export_path, histogram_freq=1)
     if load:
@@ -154,7 +154,7 @@ def full_train(
     out=tf.stack(output)
     if fit:
         model.fit(x=inputvar,
-                  y=output,batch_size=8,epochs=10,validation_split=0.2,verbose=2,
+                  y=output,batch_size=32,epochs=100,validation_split=0.2,verbose=2,
                   callbacks=[model_checkpoint_callback,tensorboard_callback])
 
     tf.keras.models.save_model(model, export_path+"modelfull_tr.hdf5" )
@@ -182,7 +182,7 @@ data_pred=cleaning.secop_for_prediction(pathToData=pathToData)
 #we select from "TR" for trasformer "RN" for recurrent "NN" for neural network
 #
 entrenar="TR" 
-setsize=2000000   
+setsize=40000   
 data_desc=cleaning.secop2_general(pathToData =pathToData,subsetsize=setsize)
 data_categ2=cleaning.secop2_categoric(pathToData =pathToData,subsetsize=setsize)
 data_categ2=data_categ2.astype(str).applymap(lambda x:[x.replace(" ","")])
@@ -253,22 +253,19 @@ padded=pad_sequences(sequences,maxlen=argumentos.max_length)
 
 model,inputvar=full_train(categorical_vars=data_categ,transformer_vars=padded,
                           output=data_value,checkpointpath=path_to_models+r"\modelfull_tr.hdf5",
-                          load=True,fit=True)
+                          load=False,fit=True)
 
 
 
 predict=pd.DataFrame(model.predict(inputvar))
-data= pd.read_csv (
-      pathToData,
-      skiprows =0,
-      nrows = setsize/2,
-      decimal = ".")
 
-data["predict"]=predict
-data["real"]=data_value["VALOR NORM".lower()]
-data.to_csv(path_to_result+r"\results3.csv")
-datatesting=data.dropna(subset=["real"])
+data_value["predict"]=predict
 
-r2_score(datatesting["predict"],datatesting["real"])
 
-model.plot_model()
+
+data_value.to_excel(path_to_result+r"\results3.xlsx")
+
+
+r2_score(data_value["valor norm"],data_value["predict"])
+
+
