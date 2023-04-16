@@ -113,6 +113,8 @@ def create_model_full(categorical_vars:pd.DataFrame(),
     combined = layers.concatenate([ categor.output,transf.output])
     ka = layers.Dense(50,
                       kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.2, l2=0.2))(combined)
+    ka = layers.Dense(20,
+                      kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.2, l2=0.2))(ka)
     ka = layers.Dense(1)(ka)
     
     model = keras.Model(inputs=[categor.input,transf.input],
@@ -141,7 +143,7 @@ def full_train(
     model.compile(optimizer=Adam(learning_rate=argumentos.learning_rate,
                                  decay=argumentos.decay),
                                  loss="MeanSquaredError",
-                                 metrics=["KLDivergence",'mean_absolute_error'])
+                                 metrics=["MeanSquaredError",'mean_absolute_error',"KLDivergence"])
     log_dir=r"C:\Users\usuario\Documents\contract-transparency - copia\python3_10\modules\models\tensor_board"
     tensorboard_callback = tf.keras.callbacks.TensorBoard(log_dir=export_path, histogram_freq=1)
     if load:
@@ -253,7 +255,7 @@ padded=pad_sequences(sequences,maxlen=argumentos.max_length)
 
 model,inputvar=full_train(categorical_vars=data_categ,transformer_vars=padded,
                           output=data_value,checkpointpath=path_to_models+r"\modelfull_tr.hdf5",
-                          load=False,fit=True)
+                          load=True,fit=True)
 
 
 

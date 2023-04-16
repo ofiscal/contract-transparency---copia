@@ -33,12 +33,12 @@ class arguments():
         
 argumentos=arguments(
     vocab_size=100000,
-    embedding_dim=500,
+    embedding_dim=200,
     max_length=200,
     num_epochs=1,
     learning_rate=0.00005,
     decay=0.00000001,
-    num_heads = 20,
+    num_heads = 100,
     ff_dim = 32,
     max_word=10000,    
     )
