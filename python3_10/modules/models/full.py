@@ -43,9 +43,9 @@ def transformer_layer(inputsx:layers.Input,
     x = transformer_block(x)
     x = layers.GlobalAveragePooling1D()(x)
 
-    x = layers.Dense(200, activation="relu",kernel_regularizer="l1_l2")(x)
+    x = layers.Dense(200, activation="relu",kernel_regularizer="l1_l2", use_bias=False)(x)
     x=tf.keras.layers.Dropout(.2, input_shape=(200,))(x)
-    x = layers.Dense(70)(x)
+    x = layers.Dense(70, use_bias=False)(x)
     return keras.Model(inputs=inputsx, outputs=x)
 
 
@@ -72,9 +72,10 @@ def categorical_layer(inputsy:layers.Input,
     #inputss.append(input_numeric)
     y=layers.Concatenate()(inputss)
     y = layers.Dense(20, activation="relu",
-                     kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.2, l2=0.2))(y)
+                     kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.2, l2=0.2,
+                     ),use_bias=False)(y)
     y=tf.keras.layers.Dropout(.2, input_shape=(20,))(y)
-    y=layers.Dense(7)(y)
+    y=layers.Dense(7, use_bias=False)(y)
     return keras.Model(inputs=inputss, outputs=y)
 
 def numerical_layer(inputsz:pd.DataFrame(),
@@ -113,8 +114,6 @@ def create_model_full(categorical_vars:pd.DataFrame(),
     combined = layers.concatenate([ categor.output,transf.output])
     ka = layers.Dense(50,
                       kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.2, l2=0.2))(combined)
-    ka = layers.Dense(20,
-                      kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.2, l2=0.2))(ka)
     ka = layers.Dense(1)(ka)
     
     model = keras.Model(inputs=[categor.input,transf.input],
