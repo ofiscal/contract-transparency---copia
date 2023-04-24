@@ -60,22 +60,23 @@ def categorical_layer(inputsy:layers.Input,
         inputs = layers.Input(shape=(1,),name='input_sparse_'+c)
         print('input_sparse_'+c)
         
-        embedding = TokenAndPositionEmbedding(argumentos.max_word,
-                                              argumentos.vocab_size,
-                                              argumentos.embedding_dim)
+        inputs = tf.keras.layers.Embedding(argumentos.max_word,
+                                              1)(inputs)
         inputss.append(inputs)
-        embeddings.append(embedding)
+
 
     #input_numeric = keras.Input(shape=(1,),name='input_continuous')
     #embedding_numeric = layers.Dense(16)(input_numeric)
     #embeddings.append(embedding_numeric)
     #inputss.append(input_numeric)
     y=layers.Concatenate()(inputss)
-    y = layers.Dense(20, activation="relu",
+
+    y = layers.Dense(200, activation="relu",
                      kernel_regularizer=tf.keras.regularizers.L1L2(l1=0.2, l2=0.2,
                      ),use_bias=False)(y)
     y=tf.keras.layers.Dropout(.2, input_shape=(20,))(y)
-    y=layers.Dense(7, use_bias=False)(y)
+    y=layers.Dense(70, use_bias=False)(y)
+    y=tf.keras.layers.Reshape((70,)) (y)
     return keras.Model(inputs=inputss, outputs=y)
 
 def numerical_layer(inputsz:pd.DataFrame(),
@@ -183,7 +184,7 @@ data_pred=cleaning.secop_for_prediction(pathToData=pathToData)
 #we select from "TR" for trasformer "RN" for recurrent "NN" for neural network
 #
 entrenar="TR" 
-setsize=40000   
+setsize=40000
 data_desc=cleaning.secop2_general(pathToData =pathToData,subsetsize=setsize)
 data_categ2=cleaning.secop2_categoric(pathToData =pathToData,subsetsize=setsize)
 data_categ2=data_categ2.astype(str).applymap(lambda x:[x.replace(" ","")])
