@@ -56,13 +56,13 @@ def categorical_layer(inputsy:layers.Input,
     embeddings = []
 
     for c in categorical_vars:
-
+        tok=len(categorical_vars[c].unique())
         inputs = layers.Input(shape=(1,),name='input_sparse_'+c)
         print('input_sparse_'+c)
         
-        inputs = tf.keras.layers.Embedding(argumentos.max_word,
+        embed = tf.keras.layers.Embedding(argumentos.max_word,
                                               1)(inputs)
-        inputss.append(inputs)
+        inputss.append(embed)
 
 
     #input_numeric = keras.Input(shape=(1,),name='input_continuous')
@@ -156,7 +156,7 @@ def full_train(
     out=tf.stack(output)
     if fit:
         model.fit(x=inputvar,
-                  y=output,batch_size=32,epochs=100,validation_split=0.2,verbose=2,
+                  y=output,batch_size=64,epochs=100,validation_split=0.2,verbose=2,
                   callbacks=[model_checkpoint_callback,tensorboard_callback])
 
     tf.keras.models.save_model(model, export_path+"modelfull_tr.hdf5" )
