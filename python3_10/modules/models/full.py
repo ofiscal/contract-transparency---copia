@@ -156,7 +156,7 @@ def full_train(
     out=tf.stack(output)
     if fit:
         model.fit(x=inputvar,
-                  y=output,batch_size=64,epochs=100,validation_split=0.2,verbose=2,
+                  y=output,batch_size=64,epochs=10,validation_split=0.2,verbose=2,
                   callbacks=[model_checkpoint_callback,tensorboard_callback])
 
     tf.keras.models.save_model(model, export_path+"modelfull_tr.hdf5" )
@@ -184,7 +184,7 @@ data_pred=cleaning.secop_for_prediction(pathToData=pathToData)
 #we select from "TR" for trasformer "RN" for recurrent "NN" for neural network
 #
 entrenar="TR" 
-setsize=40000
+setsize=400
 data_desc=cleaning.secop2_general(pathToData =pathToData,subsetsize=setsize)
 data_categ2=cleaning.secop2_categoric(pathToData =pathToData,subsetsize=setsize)
 data_categ2=data_categ2.astype(str).applymap(lambda x:[x.replace(" ","")])
@@ -255,7 +255,7 @@ padded=pad_sequences(sequences,maxlen=argumentos.max_length)
 
 model,inputvar=full_train(categorical_vars=data_categ,transformer_vars=padded,
                           output=data_value,checkpointpath=path_to_models+r"\modelfull_tr.hdf5",
-                          load=True,fit=True)
+                          load=True,fit=False)
 
 
 
