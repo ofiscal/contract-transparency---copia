@@ -191,7 +191,7 @@ data_categ2=data_categ2.astype(str).applymap(lambda x:[x.replace(" ","")])
 
 data_categ=pd.DataFrame()
 #generamos un tokenizer por cada categoria y lo aplicamos, mantener en falso
-if False:
+if True:
     for column in data_categ2:
         try:        
             tokenizer2= Tokenizer(num_words=argumentos.vocab_size,oov_token="<OOV>")

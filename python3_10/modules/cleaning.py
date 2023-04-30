@@ -47,13 +47,21 @@ def secop2_valor(subsetsize:int = subsetsize, # Indices into (subsetting) the da
       nrows = subsetsize,
       decimal = ".",
       usecols = ["VALOR NORM"])
-
-    data ["VALOR NORM"] = (
-      data["VALOR NORM"]
-      . apply ( lambda x:
-                float(x.replace(",","").replace("$","")))
-      . apply( lambda x:
-               x if x < 1e100 else 1e10 ) )
+    try:
+        data ["VALOR NORM"] = (
+          data["VALOR NORM"]
+          . apply ( lambda x:
+                    float(x.replace(",","").replace("$","")))
+          . apply( lambda x:
+                   x if x < 1e100 else 1e10 ) )
+    except:
+        data ["VALOR NORM"] = (
+          data["VALOR CONTRATO NORMA"]
+          . apply ( lambda x:
+                    float(x.replace(",","").replace("$","")))
+          . apply( lambda x:
+                   x if x < 1e100 else 1e10 ) )
+        
     data.columns= data.columns.str.lower()
     return data
 
@@ -64,12 +72,12 @@ def secop2_categoric(subsetsize = subsetsize, # Indices into (subsetting) the da
         rand_seed=rand_seed        
         ) ->pd.DataFrame:
     ...
-    names=['Nombre de la Entidad', 'Anno Cargue SECOP','Anno Firma del Contrato',
-           'Nivel Entidad','Orden Entidad','ENTIDAD NORMALIZADA','NIT de la Entidad',
+    names=[ 'Anno Cargue SECOP','Anno Firma del Contrato',
+           'Nivel Entidad','Orden Entidad',"DEPTO EJECUCIÓN PPAL","ORIGEN RECURSOS NORM",
+           "Nombre Grupo",
            'TIPO PROCESO NORM','Estado del Proceso','Causal de Otras Formas de Contratacion Directa',
-           'ID Regimen de Contratacion','OBJETO NORM','Tipo de Contrato',
-           'Municipio Obtencion','Municipio Entrega','Municipios Ejecucion','Nombre Grupo',
-           'Nombre Familia','Nombre Clase',"MPPIO ENTIDAD NORM","DEPTO ENTIDAD NORM","CAUSALES CONT DIRECTA NORM"
+           'ID Regimen de Contratacion','Tipo de Contrato',
+           "CAUSALES CONT DIRECTA NORM"
            ]
 
     
@@ -141,12 +149,23 @@ def secop_for_prediction(
       skiprows =[1,subsetsize],
       nrows = subsetsize,
       decimal = ".",)
-    data ["VALOR NORM"] = (
-      data["VALOR NORM"]
-      . apply ( lambda x:
-                float(x.replace(",","").replace("$","")))
-      . apply( lambda x:
-               x) )
+
+        
+    try:
+        data ["VALOR NORM"] = (
+          data["VALOR NORM"]
+          . apply ( lambda x:
+                    float(x.replace(",","").replace("$","")))
+          . apply( lambda x:
+                   x if x < 1e100 else 1e10 ) )
+    except:
+        data ["VALOR NORM"] = (
+          data["VALOR CONTRATO NORMA"]
+          . apply ( lambda x:
+                    float(x.replace(",","").replace("$","")))
+          . apply( lambda x:
+                   x if x < 1e100 else 1e10 ) )
+            
     data.columns= data.columns.str.lower()    
     
     return data

@@ -23,6 +23,8 @@ from keras.utils.vis_utils import plot_model
 import sys
 import mlflow
 from sklearn.ensemble import GradientBoostingRegressor
+import pickle
+from sklearn.model_selection import train_test_split
 #this will be later transplanted to the main file, but for now I need to test
 #the code somewhere and tdidn´t find a better place
 #some paths to where things are
@@ -36,13 +38,13 @@ path_to_result=r"data/resultados"
 mean=163740447
 ssd=1716771980
 #loading the cleaned dataset
-data_pred=cleaning.secop_for_prediction(pathToData=pathToData)
+
 
 #entrenar los modelos o continuar su entrenamiento
 #we select from "TR" for trasformer "RN" for recurrent "NN" for neural network
 #
 entrenar="TR" 
-setsize=40000
+setsize=70000
 data_desc=cleaning.secop2_general(pathToData =pathToData,subsetsize=setsize)
 data_categ2=cleaning.secop2_categoric(pathToData =pathToData,subsetsize=setsize)
 data_categ2=data_categ2.astype(str).applymap(lambda x:[x.replace(" ","")])
@@ -61,17 +63,32 @@ for column in data_categ2:
     except:
         ...
 
+data_categ_train, data_categ_test, data_value_train, data_value_test = train_test_split(
+     data_categ, data_value, test_size=0.2, random_state=153)
 
-reg=GradientBoostingRegressor(random_state=0,learning_rate=0.01,n_estimators=100000)
 
-hist=reg.fit(data_categ,data_value)
+if True:
+    reg=GradientBoostingRegressor(random_state=153,learning_rate=0.1,
+                                  n_estimators=500,verbose=2,loss="squared_error",
+                                  warm_start=True)
+    
+    hist=reg.fit(data_categ_train,data_value_train)
+    
 
+
+pickle.dump(reg, open('model.pkl','wb'))
+predict=reg.predict(data_categ_test)
+data_value_test["predict"]=predict
 predict=reg.predict(data_categ)
+
+
 data_value["predict"]=predict
 
+data_categ2["predicted_valu"]=data_value["predict"].apply(lambda x:(x*ssd)+mean)
+data_categ2["real_valu"]=data_value["valor norm"].apply(lambda x:(x*ssd)+mean)
+data_categ2.to_excel(path_to_result+r"\results3.xlsx")
 
 
-data_value.to_excel(path_to_result+r"\results3.xlsx")
+r2_score(data_value_test["valor norm"],data_value_test["predict"])
 
 
-r2_score(data_value["valor norm"],data_value["predict"])
