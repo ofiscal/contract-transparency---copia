@@ -73,7 +73,7 @@ def secop2_categoric(subsetsize = subsetsize, # Indices into (subsetting) the da
         ) ->pd.DataFrame:
     ...
     names=[ 'Anno Cargue SECOP','Anno Firma del Contrato',
-           'Nivel Entidad','Orden Entidad',"DEPTO EJECUCIÓN PPAL","ORIGEN RECURSOS NORM",
+           'Nivel Entidad','Orden Entidad',"MPPIO ENTIDAD NORM","Condiciones de Entrega","ORIGEN RECURSOS NORM",
            "Nombre Grupo",
            'TIPO PROCESO NORM','Estado del Proceso','Causal de Otras Formas de Contratacion Directa',
            'ID Regimen de Contratacion','Tipo de Contrato',
