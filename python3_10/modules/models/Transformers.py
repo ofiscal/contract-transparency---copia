@@ -14,6 +14,7 @@ from tensorflow.keras.optimizers import Adam
 from python3_10.modules.models.models_main import argumentos
 from nltk.tokenize import word_tokenize
 import tensorflow_text as text
+
 #the structural definition of the transformer block and tokens was taken from
 #https://keras.io/examples/nlp/text_classification_with_transformer/ with 
 #some changes
@@ -84,4 +85,10 @@ class TokenAndPositionEmbedding(layers.Layer):
         })
         return config
 
-  
+
+
+
+
+
+
+
