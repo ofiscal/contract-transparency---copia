@@ -74,10 +74,10 @@ def secop2_categoric(subsetsize = subsetsize, # Indices into (subsetting) the da
     ...
     names=[ 'Anno Cargue SECOP','Anno Firma del Contrato',
            'Nivel Entidad','Orden Entidad',"MPPIO ENTIDAD NORM","Condiciones de Entrega","ORIGEN RECURSOS NORM",
-           "Nombre Grupo",
-           'TIPO PROCESO NORM','Estado del Proceso','Causal de Otras Formas de Contratacion Directa',
+           "Nombre Grupo","DEPTO ENTIDAD NORM",
+           'TIPO PROCESO NORM','Estado del Proceso',
            'ID Regimen de Contratacion','Tipo de Contrato',
-           "CAUSALES CONT DIRECTA NORM"
+           "CAUSALES CONT DIRECTA NORM","Plazo de Ejec del Contrato"
            ]
 
     

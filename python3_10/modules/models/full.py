@@ -22,6 +22,8 @@ import os
 from keras.utils.vis_utils import plot_model
 import sys
 import mlflow
+import tensorflow_hub as hub
+import tensorflow_hub as text
 #the structural definition of the transformer block and tokens was taken from
 #https://keras.io/examples/nlp/text_classification_with_transformer/ with 
 #some changes
@@ -49,6 +51,11 @@ def transformer_layer(inputsx:layers.Input,
     return keras.Model(inputs=inputsx, outputs=x)
 
 
+
+text_input = tf.keras.layers.Input(shape=(), dtype=tf.string)
+preprocessor = hub.KerasLayer(
+    "https://tfhub.dev/tensorflow/bert_en_uncased_preprocess/3")
+encoder_inputs = preprocessor(text_input)
 
 #this will be later transplanted to the main file, but for now I need to test
 #the code somewhere and tdidn´t find a better place
@@ -147,7 +154,6 @@ model,inputvar=full_train(categorical_vars=data_categ,transformer_vars=padded,
 predict=pd.DataFrame(model.predict(inputvar))
 
 data_value["predict"]=predict
-
 
 
 data_value.to_excel(path_to_result+r"\results3.xlsx")

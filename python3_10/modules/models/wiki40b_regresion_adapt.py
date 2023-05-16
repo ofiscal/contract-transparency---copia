@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 """
+Created on Tue May 16 09:36:23 2023
+
+@author: usuario
+"""
+
+# -*- coding: utf-8 -*-
+"""
 Created on Thu May  4 10:55:27 2023
 
 @author: Daniel Duque
@@ -33,7 +40,7 @@ from sklearn.metrics import mean_squared_error
 #the code somewhere and tdidn´t find a better place
 #some paths to where things are
 path_to_models=r"trainedmodels"
-pathToData = r"data/sucio/CONTRATOS_COVID(20-22).csv"
+pathToData = r"data/limpio/datadesc.pkl"
 path_to_result=r"data/resultados"
 #this cant be change, they are how rn where train (will be changed manually)
 
@@ -49,23 +56,12 @@ ssd=1716771980
 #
 entrenar="TR" 
 setsize=70000
-data_desc=cleaning.secop2_general(pathToData =pathToData,subsetsize=setsize)
-data_categ2=cleaning.secop2_categoric(pathToData =pathToData,subsetsize=setsize)
-data_categ2=data_categ2.astype(str).applymap(lambda x:[x.replace(" ","")])
+data_desc=pickle.load( open(pathToData,'r', encoding="latin-1"))
+
 data_value=cleaning.secop2_valor(pathToData =pathToData,subsetsize=setsize).apply(
         lambda x:(x-mean)/ssd)
 
 
-data_categ=pd.DataFrame()
-for column in data_categ2:
-    try:
-
-        pathto_token=r"trainedmodels\tokenizers"+"\\"+column+"tokenizer.json"
-        f = open(pathto_token)
-        tokenizer2=tokenizer_from_json(json.load(f))
-        data_categ[column]=data_categ2[column].apply(lambda x:int(tokenizer2.texts_to_sequences(x)[0][0]))
-    except:
-        ...
 
 data_categ_train, data_categ_test, data_value_train, data_value_test = train_test_split(
      data_categ, data_value, test_size=0.2, random_state=153)
