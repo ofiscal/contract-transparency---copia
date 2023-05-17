@@ -93,28 +93,29 @@ def generate_embedding(text1):
     import swifter
     import pandas as pd
 
-    print(1)
+
     g = tf.Graph()
     with g.as_default():
         module = hub.Module("https://tfhub.dev/google/wiki40b-lm-es/1")
     
         activations = module(dict(text=texto),signature="activations", as_dict=True)
         activations = activations["activations"]
-        print(2)
+
         init_op = tf.group([tf.global_variables_initializer(),
                             tf.tables_initializer()])
-        print(3)
+
     # Initialize session.
     with tf.Session(graph=g) as session:
         session.run(init_op)
         activations = session.run([
             activations]) 
-        print(4)
-    return pd.Series(np.sum(tf.get_static_value(activations[0][:,:,-1]),axis=0).flatten())
 
-
+    return pd.Series(tf.get_static_value(activations[0].mean(axis=3).mean(axis=2)).flatten())
+#.flatten())
+#
+#mean(axis=1),axis=0))
 a=generate_embedding("cada dia vuelvo a reconocer que hay")     
-      
+  
 
 path_to_models=r"trainedmodels"
 pathToData = r"data/sucio/CONTRATOS_COVID(20-22).csv"
@@ -129,7 +130,7 @@ data_pred=cleaning.secop_for_prediction(pathToData=pathToData)
 #we select from "TR" for trasformer "RN" for recurrent "NN" for neural network
 #
 entrenar="TR" 
-setsize=7000
+setsize=14000
 data_desc = cleaning.secop2_general(pathToData =pathToData,subsetsize=setsize)
 
 

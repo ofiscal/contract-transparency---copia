@@ -40,7 +40,8 @@ from sklearn.metrics import mean_squared_error
 #the code somewhere and tdidn´t find a better place
 #some paths to where things are
 path_to_models=r"trainedmodels"
-pathToData = r"data/limpio/datadesc.pkl"
+pathToData = r"data/limpio/tensor_embedding.csv"
+pathTovalues=r"data/sucio/CONTRATOS_COVID(20-22).csv"
 path_to_result=r"data/resultados"
 #this cant be change, they are how rn where train (will be changed manually)
 
@@ -55,25 +56,25 @@ ssd=1716771980
 #we select from "TR" for trasformer "RN" for recurrent "NN" for neural network
 #
 entrenar="TR" 
-setsize=70000
-data_desc=pickle.load( open(pathToData,'r', encoding="latin-1"))
+setsize=14000
+data_desc=pd.read_csv(pathToData,sep=";",nrows = setsize,decimal=".")
 
-data_value=cleaning.secop2_valor(pathToData =pathToData,subsetsize=setsize).apply(
+data_value=cleaning.secop2_valor(pathToData =pathTovalues,subsetsize=setsize).apply(
         lambda x:(x-mean)/ssd)
 
 
 
 data_categ_train, data_categ_test, data_value_train, data_value_test = train_test_split(
-     data_categ, data_value, test_size=0.2, random_state=153)
+     data_desc, data_value, test_size=0.2, random_state=153)
 
 dtrain_reg = xgb.DMatrix(data_categ_train, data_value_train, enable_categorical=True)
 dtest_reg = xgb.DMatrix(data_categ_test, data_value_test, enable_categorical=True)
-pure_data = xgb.DMatrix(data_categ, data_value, enable_categorical=True)
+pure_data = xgb.DMatrix(data_desc, data_value, enable_categorical=True)
 
 
 if True:
-    n = 5000
-    params = {"objective": "reg:squarederror","reg_alpha":0.2,"reg_lambda":0.2}
+    n = 200
+    params = {"objective": "reg:squarederror","reg_alpha":0.99999,"reg_lambda":0.99999}
     evals = [(dtrain_reg, "train"), (dtest_reg, "validation")]
     reg = xgb.train(
        params=params, 
@@ -87,12 +88,12 @@ if True:
 pickle.dump(reg, open('modelxgboost.pkl','wb'))
 
 predict=reg.predict(pure_data)
-
-
+predict_test=reg.predict(dtest_reg)
+data_value_test["predict"]=predict_test
 data_value["predict"]=predict
 
-data_categ2["predicted_valu"]=data_value["predict"].apply(lambda x:(x*ssd)+mean)
-data_categ2["real_valu"]=data_value["valor norm"].apply(lambda x:(x*ssd)+mean)
+data_desc["predicted_valu"]=data_value["predict"].apply(lambda x:(x*ssd)+mean)
+data_desc["real_valu"]=data_value["valor norm"].apply(lambda x:(x*ssd)+mean)
 
 def flagging(predict,real):
     if predict<=0:
@@ -105,7 +106,7 @@ def flagging(predict,real):
         value=0
     return float(size),float(value)
 
-data_categ2[["probability","value in danger"]]=data_categ2.apply(lambda row:
+data_desc[["probability","value in danger"]]=data_desc.apply(lambda row:
     flagging(row["predicted_valu"],row["real_valu"]),axis=1, result_type="expand")
     
 data_full = pd.read_csv (
@@ -114,14 +115,14 @@ data_full = pd.read_csv (
       nrows = setsize,
       decimal = ".",)
 
-data_full[["probability","value in danger"]]=data_categ2.apply(lambda row:
+data_full[["probability","value in danger"]]=data_desc.apply(lambda row:
     flagging(row["predicted_valu"],row["real_valu"]),axis=1, result_type="expand")
-data_full["predicted_valu"]=data_categ2["predicted_valu"]
-data_full["real_valu"]=data_categ2["real_valu"]
+data_full["predicted_valu"]=data_desc["predicted_valu"]
+data_full["real_valu"]=data_desc["real_valu"]
 data_full.to_csv(path_to_result+r"\results3.csv",decimal = ".",sep=";")
+data_value_test.to_excel(path_to_result+r"\results4.xlsx")
 
 
-
-r2_score(data_full["real_valu"],data_full["predicted_valu"])
+r2_score(data_value_test["valor norm"],data_value_test["predict"])
 
 
