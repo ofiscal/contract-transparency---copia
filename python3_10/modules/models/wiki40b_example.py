@@ -67,25 +67,19 @@ def generate_embedding(text1):
     import tensorflow.compat.v1 as tf
     import tensorflow_hub as hub
     import pandas as pd
-
     texto=[text1]
-    from pandarallel import pandarallel
-    pandarallel.initialize(progress_bar=True)
+
     import numpy as np
     import tensorflow.compat.v1 as tf
     import tensorflow_hub as hub
     import tensorflow_text as tf_text
     tf.disable_eager_execution()
-
     from tensorflow import keras
     from tensorflow.keras import layers
     from tensorflow.keras.preprocessing.text import Tokenizer,tokenizer_from_json
     from tensorflow.keras.preprocessing.sequence import pad_sequences
     from tensorflow.keras.optimizers import Adam
-    from python3_10.modules.models.models_main import argumentos
-    from python3_10.modules.models.Transformers import TransformerBlock,TokenAndPositionEmbedding
     import numpy as np
-    import python3_10.modules.cleaning as cleaning
     from sklearn.metrics import r2_score
     import json
     import io
@@ -98,9 +92,7 @@ def generate_embedding(text1):
     import pickle
     import swifter
     import pandas as pd
-    import dask.dataframe as dd
-    import multiprocessing as mp
-    from multiprocessing import get_context
+
     print(1)
     g = tf.Graph()
     with g.as_default():
@@ -118,7 +110,7 @@ def generate_embedding(text1):
         activations = session.run([
             activations]) 
         print(4)
-    return pd.Series(tf.get_static_value(activations[0][:,:,-1].flatten()))
+    return pd.Series(np.sum(tf.get_static_value(activations[0][:,:,-1]),axis=0).flatten())
 
 
 a=generate_embedding("cada dia vuelvo a reconocer que hay")     
@@ -137,7 +129,7 @@ data_pred=cleaning.secop_for_prediction(pathToData=pathToData)
 #we select from "TR" for trasformer "RN" for recurrent "NN" for neural network
 #
 entrenar="TR" 
-setsize=5
+setsize=7000
 data_desc = cleaning.secop2_general(pathToData =pathToData,subsetsize=setsize)
 
 
