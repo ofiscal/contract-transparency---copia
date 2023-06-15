@@ -10,6 +10,8 @@ from transformers.onnx import config
 import pandas as pd
 import python3_10.modules.cleaning as cleaning
 import numpy as np
+from sklearn.metrics import r2_score
+
 tf.config.run_functions_eagerly(True)
 #this will be later transplanted to the main file, but for now I need to test
 #the code somewhere and tdidn´t find a better place
@@ -55,7 +57,8 @@ model.compile(optimizer=adamizer)
 
 model.layers[0].trainable = False
 
-model.fit(x=tokenized_data,y=labels,batch_size=4, epochs=1, validation_split=0.2)
+model.fit(x=tokenized_data,y=labels,batch_size=4, epochs=6, validation_split=0.2)
 results=model.predict(tokenized_data).logits
 resultados=pd.DataFrame(results)
 resultados.to_excel(path_to_result+r"\resultshugging.xlsx")
+r2_score(data_value["valor norm"],resultados[0])
