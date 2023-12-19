@@ -16,7 +16,7 @@ import torch.optim as optim
 import torch.nn.functional as F
 from tqdm import tqdm
 
-casa=pd.read_csv(r"C:\Users\usuario\Documents\contract-transparency-copia\data\limpio\value.csv",skiprows=1,header=None)
+casa=pd.read_csv(r"C:\Users\usuario\Documents\contract-transparency-copia\data\limpio\value.csv",skiprows=1,nrows=18000,header=None)
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class BertDataset(Dataset):
@@ -145,40 +145,51 @@ def finetune(epochs,dataloader,model,loss_fn,optimizer):
 
   return model  
     
-def predict(model,dataloader):
-    model.train()
+def predict(epochs,dataloader,model,loss_fn,optimizer):
+    num=1
+    acc=0
     loop=tqdm(enumerate(dataloader),leave=False,total=len(dataloader))
     results=[]
     for batch, dl in loop:
-        ids=dl['ids']
-        token_type_ids=dl['token_type_ids']
-        mask= dl['mask']
-        label=dl['target']
-        label = label.unsqueeze(1)
-      
-        optimizer.zero_grad()
-      
-        output=model(
-            ids=ids,
-            mask=mask,
-            token_type_ids=token_type_ids)
-        label = label.type_as(output)
-        results.append(label)
-
-
-    return results
+      ids=dl['ids']
+      token_type_ids=dl['token_type_ids']
+      mask= dl['mask']
+      label=dl['target']
+      label = label.unsqueeze(1)
     
+      optimizer.zero_grad()
+    
+      output=model(
+          ids=ids,
+          mask=mask,
+          token_type_ids=token_type_ids)
+      label = label.type_as(output)
+      for i in output.cpu().detach().numpy():
+          results.append(i[0])
+    
+    if True:
+      torch.save(model.state_dict(), r"C:\Users\usuario\Documents\contract-transparency-copia\model_saved_torch\primero.pt")
+      
+    print(acc/num)
+    
+    
+    return results 
+    
+model.load_state_dict(torch.load(r"C:\Users\usuario\Documents\contract-transparency-copia\model_saved_torch\primero.pt"))
+
+
+  
+model.to(device)  
+
 if True:
-    predict(model,dataloader)
+    predicted=predict(10000, dataloader, model, loss_fn, optimizer)
+    to_series=pd.Series(predicted,name="resultados")
+    casa["predict"]=to_series
 else:
-    model.load_state_dict(torch.load(r"C:\Users\usuario\Documents\contract-transparency-copia\model_saved_torch\primero.pt"))
-    
-    
-      
-    model.to(device)    
+  
     model=finetune(10000, dataloader, model, loss_fn, optimizer)    
     
 
-    
+casa.to_excel(r"C:\Users\usuario\Documents\contract-transparency-copia\data\resultados\torch.xlsx")    
     
 
