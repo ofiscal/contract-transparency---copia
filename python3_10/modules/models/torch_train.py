@@ -68,7 +68,9 @@ class BERT(nn.Module):
         self.medium5 = nn.Sigmoid()
         self.medium6=nn.Linear(15000,1500,bias=True)
         self.medium7 = nn.Sigmoid()
+        self.drop = nn.Dropout(p=0.3)
         self.out = nn.Linear(1500, 1,bias=True)
+        self.l1_strength=0.00001
 
     def forward(self,ids,mask,token_type_ids):
         _,o2= self.bert_model(ids,attention_mask=mask,token_type_ids=token_type_ids, return_dict=False)
@@ -78,9 +80,15 @@ class BERT(nn.Module):
         medium5=self.medium5(medium4)
         medium6=self.medium5(medium4)
         medium7=self.medium6(medium5)
-        out= self.out(medium7)
-
+        medium8=self.drop(medium7)
+        out= self.out(medium8)
         return out
+    
+    def l1_regularization(self):
+        l1_loss_example = 0
+        for param in self.parameters():
+            l1_loss_example += torch.sum(torch.abs(param))
+        return self.l1_strength * (l1_loss_example-13000000)
 
 model=BERT()
 
@@ -119,6 +127,7 @@ def finetune(epochs,dataloader,model,loss_fn,optimizer):
       label = label.type_as(output)
 
       loss=loss_fn(output,label)
+      loss+=model.l1_regularization()
       loss.backward()
 
       optimizer.step()
@@ -139,7 +148,8 @@ def finetune(epochs,dataloader,model,loss_fn,optimizer):
       num+=1
     if True:
       torch.save(model.state_dict(), r"C:\Users\usuario\Documents\contract-transparency-copia\model_saved_torch\primero.pt")
-      
+    if epoch%100==0:
+      torch.save(model.state_dict(), r"C:\Users\usuario\Documents\contract-transparency-copia\model_saved_torch\primero_backup.pt")
     print(acc/num)
 
 
@@ -167,7 +177,7 @@ def predict(epochs,dataloader,model,loss_fn,optimizer):
       for i in output.cpu().detach().numpy():
           results.append(i[0])
     
-    if True:
+    if False:
       torch.save(model.state_dict(), r"C:\Users\usuario\Documents\contract-transparency-copia\model_saved_torch\primero.pt")
       
     print(acc/num)
@@ -181,8 +191,8 @@ model.load_state_dict(torch.load(r"C:\Users\usuario\Documents\contract-transpare
   
 model.to(device)  
 
-if True:
-    predicted=predict(10000, dataloader, model, loss_fn, optimizer)
+if False:
+    predicted=predict(100000, dataloader, model, loss_fn, optimizer)
     to_series=pd.Series(predicted,name="resultados")
     casa["predict"]=to_series
 else:
@@ -190,6 +200,7 @@ else:
     model=finetune(10000, dataloader, model, loss_fn, optimizer)    
     
 
-casa.to_excel(r"C:\Users\usuario\Documents\contract-transparency-copia\data\resultados\torch.xlsx")    
+casa.to_excel(r"C:\Users\usuario\Documents\contract-transparency-copia\data\resultados\torch2.xlsx")    
     
 
+#
