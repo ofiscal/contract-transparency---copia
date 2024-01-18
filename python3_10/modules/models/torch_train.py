@@ -85,10 +85,15 @@ class BERT(nn.Module):
         return out
     
     def l1_regularization(self):
+        n=0
         l1_loss_example = 0
+        #the next structure is to only recognize the layers that are finetuned
+        #this makes the exercise faster and allows to update the strength easier
         for param in self.parameters():
-            l1_loss_example += torch.sum(torch.abs(param))
-        return self.l1_strength * (l1_loss_example-13000000)
+            n+=1
+            if n>197:
+                l1_loss_example += torch.sum(torch.abs(param))
+        return self.l1_strength * (l1_loss_example)
 
 model=BERT()
 
@@ -203,4 +208,3 @@ else:
 casa.to_excel(r"C:\Users\usuario\Documents\contract-transparency-copia\data\resultados\torch2.xlsx")    
     
 
-#
