@@ -35,6 +35,7 @@ from sklearn.metrics import mean_squared_error
 path_to_models=r"trainedmodels"
 pathToData = r"data/sucio/CONTRATOS_COVID(20-22).csv"
 path_to_result=r"data/resultados"
+hugging=path_to_result+r"\resultshugging.xlsx"
 #this cant be change, they are how rn where train (will be changed manually)
 
 
@@ -48,10 +49,13 @@ ssd=1716771980
 #we select from "TR" for trasformer "RN" for recurrent "NN" for neural network
 #
 entrenar="TR" 
-setsize=70000
+setsize=2000
+
 data_desc=cleaning.secop2_general(pathToData =pathToData,subsetsize=setsize)
 data_categ2=cleaning.secop2_categoric(pathToData =pathToData,subsetsize=setsize)
 data_categ2=data_categ2.astype(str).applymap(lambda x:[x.replace(" ","")])
+data_hugging=pd.read_excel(hugging)[0]
+#data_categ2["hugging"]=data_hugging
 data_value=cleaning.secop2_valor(pathToData =pathToData,subsetsize=setsize).apply(
         lambda x:(x-mean)/ssd)
 
@@ -66,7 +70,7 @@ for column in data_categ2:
         data_categ[column]=data_categ2[column].apply(lambda x:int(tokenizer2.texts_to_sequences(x)[0][0]))
     except:
         ...
-
+data_categ["hugging"]=data_hugging
 data_categ_train, data_categ_test, data_value_train, data_value_test = train_test_split(
      data_categ, data_value, test_size=0.2, random_state=153)
 
