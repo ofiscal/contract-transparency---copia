@@ -37,6 +37,7 @@ exchange_rate=exchange_rate[["Fecha","exchange_rate"]]
 exchange_ratey=exchange_rate.groupby("Fecha").mean()
 #Loading the dataset  and cleaning dates
 records=pd.read_csv(path_data_gener,nrows=19000)
+
 records=records.dropna(subset="Fecha de Firma")
 
 
@@ -59,7 +60,7 @@ records["Valor del Contrato"]=records["Valor del Contrato"].str.replace(",","")
 #We scale every value in million dolars
 records["value_million_dolar"]=records.apply(lambda row:float(row["Valor del Contrato"])/(row["exchange_rate"]*row["Avg"]*1e3),axis=1)
 
-joined=records
+joined=records[records["value_million_dolar"]<=500]
 
 
 #Declaramos las variables que vamos a usar en predicción
@@ -353,7 +354,7 @@ data1["likelihood"]=data1["perc_error"].apply(lambda x: distribution.pdf(x))
 
 data1["likelihood"].hist(bins=1000)
 
-data1.to_excel(r"/content/drive/MyDrive/Hack Corruption - Contractor/datos/resultados finales/resultados.xlsx")
+data1.to_excel(r"data/resultados/col_tria.xlsx")
 
 data1[["value_million_dolar","predict"]]
 
@@ -373,8 +374,6 @@ print(data1[data1["likelihood"]<0.05].count()[0])
 
 data1[data1["likelihood"]<0.01]
 
-for i in subset[["compiledRelease/planning/budget/description","value_million_dolar","predict","likelihood"]].iloc()[0]:
-  print(i)
 
 import seaborn
 seaborn.histplot(subset[["predict","value_million_dolar"]],x="predict",y="value_million_dolar",cbar=True,bins=1000)
