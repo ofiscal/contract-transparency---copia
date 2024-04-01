@@ -18,69 +18,62 @@ def change_dolar(local_value:float,
 
 
 
-path_change=r"/content/drive/MyDrive/Hack Corruption - Contractor/datos/Tasa_cambio.xlsx"
+path_change=r"data/sucio/Datos históricos USD_COP.xlsx"
 path_data=r"/content/drive/MyDrive/Hack Corruption - Contractor/datos/records.csv"
-path_CPI=r"/content/drive/MyDrive/Hack Corruption - Contractor/datos/USA_CPI.xlsx"
-path_data_gener=r"/content/drive/MyDrive/Hack Corruption - Contractor/datos/zips/"
+path_CPI=r"data/sucio/USA_CPI.xlsx"
+path_data_gener=r"data/sucio/SECOP_II_-_Contratos_Electr_nicos.csv"
 
 n=0
 
-for path in os.listdir(path_data_gener):
 
 
-  #Loading the exchange rate for USD standaricing
-  exchange_rate=pd.read_excel(path_change)
-  exchange_rate["exchange_rate"]=exchange_rate.apply(lambda row:(row["Máximo"]+row["Mínimo"])/2,
-                                            axis=1)
-  exchange_rate=exchange_rate[["Fecha","exchange_rate"]]
 
-  #Loading the dataset  and cleaning dates
-  records=pd.read_csv(path_data_gener+path)
-  records=records.dropna(subset="compiledRelease/tender/bidOpening/date")
-
-
-  records["Fecha"]=records["compiledRelease/tender/bidOpening/date"].apply(
-      lambda x:dt.datetime.strptime(x[:10],"%Y-%m-%d").year
-  )
-
-  #Loading CPI for real value updating
-  CPI=pd.read_excel(path_CPI)
-  CPI=CPI[["Year","Avg"]].dropna()
-  last_year=CPI["Avg"][len(CPI)-1]
-
-  #merging tables
-  records=records.merge(exchange_rate,how="left",on=["Fecha"])
-
-  #We use the last inflation data and normalize everything to the last year
-  records=records.merge(CPI,how="left",left_on=["Fecha"],right_on=["Year"])
-  records["Avg"]=records["Avg"].fillna(last_year).apply(lambda x:x/last_year)
-
-  #We scale every value in million dolars
-  records["value_million_dolar"]=records.apply(lambda row:row["compiledRelease/tender/value/amount"]/(row["exchange_rate"]*row["Avg"]*1e3)
-                                      if row["compiledRelease/tender/value/currency"]=="PYG" else row["compiledRelease/tender/value/amount"]/(row["Avg"]*1e3),axis=1)
-
-  if n==0:
-    joined=records
-  else:
-    joined=joined.append(records)
+#Loading the exchange rate for USD standaricing
+exchange_rate=pd.read_excel(path_change)
+exchange_rate["exchange_rate"]=exchange_rate.apply(lambda row:(row["Máximo"]+row["Mínimo"])/2,
+                                          axis=1)
+exchange_rate["Fecha"]=exchange_rate["Fecha"].apply(lambda x:x.year)
+exchange_rate=exchange_rate[["Fecha","exchange_rate"]]
+exchange_ratey=exchange_rate.groupby("Fecha").mean()
+#Loading the dataset  and cleaning dates
+records=pd.read_csv(path_data_gener,nrows=19000)
+records=records.dropna(subset="Fecha de Firma")
 
 
-joined=joined.dropna(subset=["compiledRelease/planning/budget/description","value_million_dolar"])
+records["Fecha"]=records["Fecha de Firma"].apply(
+    lambda x:dt.datetime.strptime(x[:10],"%m/%d/%Y").year
+)
 
-joined[["compiledRelease/planning/budget/description","value_million_dolar"]]
+#Loading CPI for real value updating
+CPI=pd.read_excel(path_CPI)
+CPI=CPI[["Year","Avg"]].dropna()
+last_year=CPI["Avg"][len(CPI)-1]
+
+#merging tables
+records=records.merge(exchange_ratey,how="left",on=["Fecha"])
+
+#We use the last inflation data and normalize everything to the last year
+records=records.merge(CPI,how="left",left_on=["Fecha"],right_on=["Year"])
+records["Avg"]=records["Avg"].fillna(last_year).apply(lambda x:x/last_year)
+records["Valor del Contrato"]=records["Valor del Contrato"].str.replace(",","")
+#We scale every value in million dolars
+records["value_million_dolar"]=records.apply(lambda row:float(row["Valor del Contrato"])/(row["exchange_rate"]*row["Avg"]*1e3),axis=1)
+
+joined=records
+
 
 #Declaramos las variables que vamos a usar en predicción
 variables_y=["value_million_dolar"]
-variables_cat=["compiledRelease/tender/awardCriteria","compiledRelease/tender/status",
-               "compiledRelease/tender/mainProcurementCategory","compiledRelease/tender/numberOfTenderers",
-               "compiledRelease/tender/procurementIntention/category",
-               "compiledRelease/tender/submissionMethod","compiledRelease/tender/awardCriteriaDetails",
-               'compiledRelease/tender/mainProcurementCategoryDetails',
-               'compiledRelease/tender/hasEnquiries','compiledRelease/planning/budget/amount/currency']
-variables_reg=["compiledRelease/tender/enquiryPeriod/durationInDays"]
-variables_text=["compiledRelease/planning/budget/description"]
+variables_cat=["Departamento","Ciudad",
+               "Sector","Rama",
+               "Modalidad de Contratacion",
+               "Entidad Centralizada","Estado Contrato",
+               'Tipo de Contrato',
+               'Justificacion Modalidad de Contratacion']
+#variables_reg=["compiledRelease/tender/enquiryPeriod/durationInDays"]
+variables_text=["Descripcion del Proceso"]
 
-joined['compiledRelease/planning/budget/amount/currency']
+#joined['compiledRelease/planning/budget/amount/currency']
 
 # -*- coding: utf-8 -*-
 """
@@ -216,7 +209,7 @@ def predict(epochs,dataloader,model,loss_fn,optimizer):
 
 
 
-model.load_state_dict(torch.load(r"/content/drive/MyDrive/Hack Corruption - Contractor/modelos/primero.pt"))
+model.load_state_dict(torch.load(r"model_saved_torch\primero_col.pt"))
 
 
 
@@ -271,7 +264,7 @@ dtest_reg = xgb.DMatrix(data_categ_test, data_value_test, enable_categorical=Tru
 pure_data = xgb.DMatrix(data_categ, data_value, enable_categorical=True)
 
 
-if False:
+if True:
     n = 20000
     params = {"objective": "reg:pseudohubererror","reg_alpha":50,"reg_lambda":50
               ,"rate_drop":0.1}
@@ -284,7 +277,7 @@ if False:
        verbose_eval=25,
        early_stopping_rounds=30
        )
-    pickle.dump(reg, open(r'/content/drive/MyDrive/Hack Corruption - Contractor/modelos/modelxgboost.pkl','wb'))
+    pickle.dump(reg, open(r'model_saved_torch\modelxgboost.pkl','wb'))
 else:
     with open(r"/content/drive/MyDrive/Hack Corruption - Contractor/modelos/modelxgboost.pkl", "rb") as input_file:
       reg = pickle.load(input_file)
@@ -294,7 +287,7 @@ predict=reg.predict(pure_data)
 
 joined["predict"]=predict
 
-joined
+joined.to_excel(r"data/resultados/col_tria.xlsx")
 
 import pandas as pd
 from scipy.stats import norm
