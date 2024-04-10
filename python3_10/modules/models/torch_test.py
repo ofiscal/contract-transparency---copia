@@ -21,7 +21,7 @@ def change_dolar(local_value:float,
 path_change=r"data/sucio/Datos históricos USD_COP.xlsx"
 path_data=r"/content/drive/MyDrive/Hack Corruption - Contractor/datos/records.csv"
 path_CPI=r"data/sucio/USA_CPI.xlsx"
-path_data_gener=r"data/sucio/SECOP_II_-_Contratos_Electr_nicos.csv"
+path_data_gener=r"data/sucio/SECOP_II_-_Procesos_de_Contrataci_n_20240409.csv"
 
 n=0
 
@@ -36,13 +36,11 @@ exchange_rate["Fecha"]=exchange_rate["Fecha"].apply(lambda x:x.year)
 exchange_rate=exchange_rate[["Fecha","exchange_rate"]]
 exchange_ratey=exchange_rate.groupby("Fecha").mean()
 #Loading the dataset  and cleaning dates
-records=pd.read_csv(path_data_gener,nrows=250000)
+records=pd.read_csv(path_data_gener,nrows=30000,skiprows=lambda x: x in range(1,3000))
+#
 
-records=records.dropna(subset="Fecha de Firma")
-
-
-records["Fecha"]=records["Fecha de Firma"].apply(
-    lambda x:dt.datetime.strptime(x[:10],"%m/%d/%Y").year
+records["Fecha"]=records["Fecha de Publicacion del Proceso"].apply(
+    lambda x:dt.datetime.strptime(x[:10],"%m/%d/%Y").year if type(x)==str else np.nan
 )
 
 #Loading CPI for real value updating
@@ -56,27 +54,41 @@ records=records.merge(exchange_ratey,how="left",on=["Fecha"])
 #We use the last inflation data and normalize everything to the last year
 records=records.merge(CPI,how="left",left_on=["Fecha"],right_on=["Year"])
 records["Avg"]=records["Avg"].fillna(last_year).apply(lambda x:x/last_year)
-records["Valor del Contrato"]=records["Valor del Contrato"].str.replace(",","")
+records["Valor del Contrato"]=records["Precio Base"].str.replace(",","")
 #We scale every value in million dolars
 records["value_million_dolar"]=records.apply(lambda row:float(row["Valor del Contrato"])/(row["exchange_rate"]*row["Avg"]*1e3),axis=1)
+records["Codigo de Categoria Recortado"]=records["Codigo Principal de Categoria"].apply(lambda x:x[0:6])
+records=records[records["value_million_dolar"]<=500]
 
-joined=records[records["value_million_dolar"]<=500]
+#we want to change any unknown variable to other
 
 #codigo de la entidad
 #Declaramos las variables que vamos a usar en predicción
 variables_y=["value_million_dolar"]
-variables_cat=["Departamento","Ciudad",
-               "Sector","Rama",
-               "Modalidad de Contratacion",
-               "Entidad Centralizada","Estado Contrato",
+variables_cat=["Ciudad Entidad",
+               "OrdenEntidad","Modalidad de Contratacion",
+               "Entidad Centralizada",
                'Tipo de Contrato',
-               'Justificacion Modalidad de Contratacion',"Liquidación",
-               "Origen de los Recursos","Género Representante Legal","Orden",
-               "Condiciones de Entrega","Es Pyme","Codigo de Categoria Principal"
+               "Codigo de Categoria Recortado"
                
                ]
+#genera una reducción de duplicados para evitar problema de nuevas variables en estimación
+if False:
+    re=pd.DataFrame()
+    for i in variables_cat:
+        re[i]=records[i].drop_duplicates().reset_index()[i]
+    re.to_csv(r"data/limpio/diccionario_duplicados.csv")
+re=pd.read_csv(r"data/limpio/diccionario_duplicados.csv",index_col=False)   
+       
+for i in variables_cat:
+    print(i)
+    records["keep"]=records[i].isin(re[i])
+    records[i]=records.apply(lambda row: row[i] if row["keep"] else "otro",axis=1)
+
+joined=records
+ 
 #variables_reg=["compiledRelease/tender/enquiryPeriod/durationInDays"]
-variables_text=["Descripcion del Proceso"]
+variables_text=["Descripción del Procedimiento"]
 
 #joined['compiledRelease/planning/budget/amount/currency']
 
@@ -234,7 +246,16 @@ optimizer= optim.Adam(model.parameters(),lr= 1e-5)
 
 predicted=pd.DataFrame(predict(100000, dataloader, model, loss_fn, optimizer))
 
-data_categ=predicted.merge(pd.get_dummies(joined[variables_cat].reset_index(drop=True).astype("str")),left_index=True, right_index=True)
+categ=pd.get_dummies(joined[variables_cat].reset_index(drop=True).astype("str"))
+
+for i in re.columns:
+    for j in re[i].dropna():
+        print(str(i)+"_"+str(j))
+        if str(i)+"_"+str(j) not in categ and not pd.isnull(j) and i!="Unnamed: 0" :
+            categ[str(i)+"_"+str(j)]=0
+
+data_categ=predicted.merge(categ,left_index=True, right_index=True)
+data_categ=data_categ[a]
 
 import pandas as pd
 
@@ -261,24 +282,30 @@ from sklearn.metrics import mean_squared_error
 
 data_value=joined[variables_y]
 
-
-
-data_categ_train, data_categ_test, data_value_train, data_value_test = train_test_split(
-     data_categ, data_value, test_size=0.15, random_state=1,shuffle=True)
-
-dtrain_reg = xgb.DMatrix(data_categ_train, data_value_train, enable_categorical=True)
-dtest_reg = xgb.DMatrix(data_categ_test, data_value_test, enable_categorical=True)
-pure_data = xgb.DMatrix(data_categ, data_value, enable_categorical=True)
-
 try:
     with open(r'model_saved_torch\modelxgboost.pkl', "rb") as input_file:
       reg = pickle.load(input_file)
 except:
     ...
 
+a=reg.feature_names
+
+data_categ.columns=data_categ.columns.astype(str)
+
+data_categ=data_categ[a]
+data_categ_train, data_categ_test, data_value_train, data_value_test = train_test_split(
+     data_categ, data_value, test_size=0.15, random_state=1,shuffle=True)
+
+
+dtrain_reg = xgb.DMatrix(data_categ_train, data_value_train, enable_categorical=True)
+dtest_reg = xgb.DMatrix(data_categ_test, data_value_test, enable_categorical=True)
+pure_data = xgb.DMatrix(data_categ, data_value, enable_categorical=True)
+
+
+
 if True:
     for i in range(0,1):
-        n = 7000
+        n = 700
         params = {"objective": "reg:pseudohubererror","reg_alpha":50,"reg_lambda":50
                   ,"rate_drop":0.1,"gpu_id":0,'tree_method':'gpu_hist'}
         evals = [(dtest_reg, "validation"),(dtrain_reg, "train") ]
@@ -294,7 +321,7 @@ if True:
         pickle.dump(reg, open(r'model_saved_torch\modelxgboost.pkl','wb'))
 else:
     ...
-
+"""
 predict=reg.predict(pure_data)
 
 
@@ -370,9 +397,9 @@ data1["likelihood"].hist(bins=1000)
 
 data1[["value_million_dolar","predict"]]
 
-
+import sklearn as sk
 print(sk.metrics.r2_score(data1["value_million_dolar"],data1["predict"]))
-
+"""
 
 
 """
