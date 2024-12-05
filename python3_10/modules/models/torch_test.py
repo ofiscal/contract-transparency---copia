@@ -22,7 +22,7 @@ for numerator in range(0,100):
     path_change=r"data/sucio/Datos históricos USD_COP.xlsx"
     path_data=r"/content/drive/MyDrive/Hack Corruption - Contractor/datos/records.csv"
     path_CPI=r"data/sucio/USA_CPI.xlsx"
-    path_data_gener=r"data/sucio/SECOP_II_-_Procesos_de_Contrataci_n_20241007.csv"
+    path_data_gener=r"data/sucio/SECOP_II_-_Contratos_Electr_nicos_20241205.csv"
     
     n=0
     
