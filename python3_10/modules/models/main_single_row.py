@@ -64,7 +64,7 @@ for numerator in range(0,100):
     #We scale every value in million dolars
     records["value_thousand_dolar"]=records.apply(lambda row:float(row["Valor del Contrato"])/(row["exchange_rate"]*row["Avg"]*1e3),axis=1)
 
-    #records=records[records["value_thousand_dolar"]<=10000]
+    records=records[records["value_thousand_dolar"]<=10000]
     
     records=records[records["value_thousand_dolar"]>=0.00001]
 
@@ -246,15 +246,7 @@ for numerator in range(0,100):
     
     predicted=pd.DataFrame(predict(100000, dataloader, model, loss_fn, optimizer))
     
-    categ=pd.get_dummies(joined[variables_cat].reset_index(drop=True).astype("str"))
-    
-    for i in re.columns:
-        for j in re[i].dropna():
-            #print(str(i)+"_"+str(j))
-            if str(i)+"_"+str(j) not in categ and not pd.isnull(j) and i!="Unnamed: 0" :
-                categ[str(i)+"_"+str(j)]=0
-    
-    data_categ=categ.merge(predicted,left_index=True, right_index=True)
+
     
     
     import pandas as pd
@@ -283,16 +275,16 @@ for numerator in range(0,100):
     data_value=joined[variables_y]
     
     try:
-        with open(r'model_saved_torch\modelxgboostn.pkl', "rb") as input_file:
+        with open(r'model_saved_torch\modelxgboostnrow.pkl', "rb") as input_file:
           reg = pickle.load(input_file)
     except:
         ...
     
-    a=reg.feature_names
+
     
-    data_categ.columns=data_categ.columns.astype(str)
+    data_categ=predicted
     
-    data_categ=data_categ[a]
+
     data_categ_train, data_categ_test, data_value_train, data_value_test = train_test_split(
          data_categ, data_value, test_size=0.15, random_state=1,shuffle=True)
     
@@ -303,7 +295,7 @@ for numerator in range(0,100):
     
     
     
-    if False:
+    if True:
         for i in range(0,1):
             n = 1000
             params = {"objective": "reg:pseudohubererror","reg_alpha":30,"reg_lambda":30
@@ -318,7 +310,7 @@ for numerator in range(0,100):
                xgb_model=reg,
                early_stopping_rounds=10
                )
-            pickle.dump(reg, open(r'model_saved_torch\modelxgboostn.pkl','wb'))
+            pickle.dump(reg, open(r'model_saved_torch\modelxgboostnrow.pkl','wb'))
     else:
         ...
 
