@@ -22,7 +22,7 @@ for numerator in range(0,100):
     path_change=r"data/sucio/Datos históricos USD_COP.xlsx"
     path_data=r"/content/drive/MyDrive/Hack Corruption - Contractor/datos/records.csv"
     path_CPI=r"data/sucio/USA_CPI.xlsx"
-    path_data_gener=r"data/sucio/SECOP_II_-_Procesos_de_Contrataci_n_20241007.csv"
+    path_data_gener=r"data/sucio/SECOP_II_-_Contratos_Electr_nicos_20241205.csv"
     
     n=0
     
@@ -40,7 +40,7 @@ for numerator in range(0,100):
     records=pd.read_csv(path_data_gener,nrows=100000,skiprows=lambda x: x in range(1,100000*numerator))
     #
     
-    records["Fecha"]=records["Fecha de Publicacion del Proceso"].apply(
+    records["Fecha"]=records["Fecha de Firma"].apply(
         lambda x:dt.datetime.strptime(x[:10],"%m/%d/%Y").year if type(x)==str else np.nan
     )
     
@@ -57,49 +57,37 @@ for numerator in range(0,100):
     records=records.merge(CPI,how="left",left_on=["Fecha"],right_on=["Year"])
     records["Avg"]=records["Avg"].fillna(last_year).apply(lambda x:x/last_year)
     try:
-        records["Valor del Contrato"]=records["Precio Base"].str.replace(",","")
+        records["Valor del Contrato"]=records["Valor del Contrato"].str.replace(",","")
     except:
-        records["Valor del Contrato"]=records["Precio Base"]
+
         print("no hay problema de string")
     #We scale every value in million dolars
     records["value_thousand_dolar"]=records.apply(lambda row:float(row["Valor del Contrato"])/(row["exchange_rate"]*row["Avg"]*1e3),axis=1)
-    records["Codigo de Categoria Recortado"]=records["Codigo Principal de Categoria"].apply(lambda x:x[0:6])
 
     #records=records[records["value_thousand_dolar"]<=10000]
     
     records=records[records["value_thousand_dolar"]>=0.00001]
-    records=records[records["Estado Resumen"]!="Presentación de oferta"]
-    records=records.dropna(subset=["Descripción del Procedimiento","value_thousand_dolar"])
+
+    records=records.dropna(subset=["Descripcion del Proceso","value_thousand_dolar"])
     #we want to change any unknown variable to other
     
     #codigo de la entidad
     #Declaramos las variables que vamos a usar en predicción
     variables_y=["value_thousand_dolar"]
-    variables_cat=["Ciudad Entidad",
-                   "OrdenEntidad","Modalidad de Contratacion",
-                   "Entidad Centralizada",
+    variables_cat=["Ciudad",
+                   "Orden","Modalidad de Contratacion",
+                   
                    'Tipo de Contrato',
-                   "Codigo de Categoria Recortado",
-                   "Duracion",	"Unidad de Duracion"
+                   "Codigo de Categoria Principal",
+                   "Duración del contrato"
 
                    ]
-    #genera una reducción de duplicados para evitar problema de nuevas variables en estimación
-    if False:
-        re=pd.DataFrame()
-        for i in variables_cat:
-            re[i]=records[i].drop_duplicates().reset_index()[i]
-        re.to_csv(r"data/limpio/diccionario_duplicados.csv")
-    re=pd.read_csv(r"data/limpio/diccionario_duplicados.csv",index_col=False)   
-           
-    for i in variables_cat:
-        #print(i)
-        records["keep"]=records[i].isin(re[i])
-        records[i]=records.apply(lambda row: row[i] if row["keep"] else "otro",axis=1)
-    
+
     joined=records
      
     #variables_reg=["compiledRelease/tender/enquiryPeriod/durationInDays"]
-    variables_text=["Descripción del Procedimiento"]
+    
+    variables_text=["Descripcion del Proceso"]
     
     #joined['compiledRelease/planning/budget/amount/currency']
     
@@ -120,8 +108,9 @@ for numerator in range(0,100):
     import torch.optim as optim
     
     from tqdm import tqdm
-    
-    casa=joined[variables_text+variables_y]
+    casa=pd.DataFrame(joined[variables_cat+variables_text].apply(lambda row: ','.join(row.astype(str)), axis=1))
+    casa.rename(columns={0: variables_text[0]}, inplace=True)
+    casa[variables_y]=  joined[variables_y]
     casa[variables_y]=casa[variables_y].astype(int)
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     
