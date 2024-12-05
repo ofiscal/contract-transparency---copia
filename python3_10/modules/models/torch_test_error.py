@@ -13,8 +13,8 @@ Original file is located at
     https://colab.research.google.com/drive/1t6CbdAjL3uM2YDWrsLiQbI96rYxKMDIo
 """
 ###
-####
-for numerator in range(0,50):
+###
+for numerator in range(0,100):
     import pandas as pd
     import datetime as dt
     import numpy as np
@@ -288,8 +288,8 @@ for numerator in range(0,50):
     
     if True:
         for i in range(0,1):
-            n = 1000
-            params = {"objective": "reg:pseudohubererror","reg_alpha":100,"reg_lambda":100
+            n = 600
+            params = {"objective": "reg:pseudohubererror","reg_alpha":25,"reg_lambda":25
                       ,"rate_drop":0.1,"gpu_id":0,'tree_method':'gpu_hist'}
             evals = [(dtest_reg, "validation"),(dtrain_reg, "train") ]
             reg = xgb.train(
@@ -388,9 +388,8 @@ for numerator in range(0,50):
     data1.to_excel(r"data/resultados/col_tria_error"+str(numerator)+".xlsx")
 
 
-
-
 """
+
 print(data1.count()[0])
 print(data1[data1["likelihood"]<0.05].count()[0])
 

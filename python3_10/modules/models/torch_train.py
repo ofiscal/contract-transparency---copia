@@ -16,16 +16,16 @@ import torch.optim as optim
 import torch.nn.functional as F
 from tqdm import tqdm
 
-casa=pd.read_csv(r"C:\Users\usuario\Documents\contract-transparency-copia\data\sucio\SECOP_II_-_Contratos_Electr_nicos.csv",skiprows=0,nrows=19000)
+casa=pd.read_csv(r"C:\Users\usuario\Documents\contract-transparency-copia\data\sucio\SECOP_II_-_Contratos_Electr_nicos.csv",skiprows=0,nrows=190000)
 casa["dolares"]=casa["Valor del Contrato"].apply(lambda x:int(x.replace(",",""))/4000)
-casa=casa[casa["dolares"]<10000000]
+casa=casa[casa["dolares"]<500000]
 casa[["Objeto del Contrato","dolares"]].dropna().to_csv(r"C:\Users\usuario\Documents\contract-transparency-copia\data\limpio\value_col.csv",index=False)
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class BertDataset(Dataset):
     def __init__(self, tokenizer,max_length):
         super(BertDataset, self).__init__()
-        self.train_csv=pd.read_csv(r"C:\Users\usuario\Documents\contract-transparency-copia\data\limpio\value_col.csv",skiprows=1,nrows=18000,header=None)
+        self.train_csv=pd.read_csv(r"C:\Users\usuario\Documents\contract-transparency-copia\data\limpio\value_col.csv",skiprows=1,nrows=180000,header=None)
         self.tokenizer=tokenizer
         self.target=self.train_csv.iloc[:,1]
         self.max_length=max_length
@@ -87,7 +87,7 @@ class BERT(nn.Module):
         out= self.out(medium8)
         #by returning medium 7 you get a previous dense layer in order to
         #train other models with more variables
-        return medium7
+        #return medium7
         return out
     
     def l1_regularization(self):
@@ -106,7 +106,7 @@ model=BERT()
 loss_fn = nn.L1Loss()
 
 #Initialize Optimizer
-optimizer= optim.Adam(model.parameters(),lr= 1e-7)
+optimizer= optim.Adam(model.parameters(),lr= 1e-5)
 
 
 for param in model.bert_model.parameters():
@@ -134,7 +134,7 @@ def finetune(epochs,dataloader,model,loss_fn,optimizer):
       output=model(
           ids=ids,
           mask=mask,
-          token_type_ids=token_type_ids)
+          token_type_ids=token_type_ids,)
       label = label.type_as(output)
 
       loss=loss_fn(output,label)
@@ -153,14 +153,16 @@ def finetune(epochs,dataloader,model,loss_fn,optimizer):
       #print(label[:4])
       #print(label[:2]-output[:2])
       # Show progress while training
+      """
       loop.set_description(f'Epoch={epoch}/{epochs}')
       loop.set_postfix(loss=loss.item(),acc=accuracy)
+      """
       acc+=loss.item()
       num+=1
     if True:
       torch.save(model.state_dict(), r"C:\Users\usuario\Documents\contract-transparency-copia\model_saved_torch\primero_col.pt")
     if epoch%100==0:
-      torch.save(model.state_dict(), r"C:\Users\usuario\Documents\contract-transparency-copia\model_saved_torch\primero_col.pt")
+      torch.save(model.state_dict(), r"C:\Users\usuario\Documents\contract-transparency-copia\model_saved_torch\primero_col2.pt")
     print(acc/num)
 
 
@@ -202,9 +204,9 @@ model.load_state_dict(torch.load(r"C:\Users\usuario\Documents\contract-transpare
   
 model.to(device)  
 
-if True:
+if False:
     predicted=pd.DataFrame(predict(100000, dataloader, model, loss_fn, optimizer))
-    data_categ=predicted.merge(pd.get_dummies(joined[variables_cat].reset_index(drop=True).astype("str")),left_index=True, right_index=True)
+
     to_series=pd.Series(predicted,name="resultados")
     to_series.to_excel(r"C:\Users\usuario\Documents\contract-transparency-copia\data\resultados\torch_weights2.xlsx")    
     
