@@ -342,6 +342,54 @@ for numerator in range(0,100):
     data1["perc_error"]=data1.apply(
         lambda row:(row["value_thousand_dolar"]-row["predict"])/row["predict"],
         axis=1)
+    ["perc_error"]
+    
+    
+    
+    try:
+        with open(r'model_saved_torch\modelxgboosterrorrow.pkl', "rb") as input_file:
+          reg = pickle.load(input_file)
+    except:
+        ...
+    
+    
+    
+    data_categ=predicted
+    
+    data_value=data1["perc_error"]
+    data_categ_train, data_categ_test, data_value_train, data_value_test = train_test_split(
+         data_categ, data_value, test_size=0.15, random_state=1,shuffle=True)
+    
+    
+    dtrain_reg = xgb.DMatrix(data_categ_train, data_value_train, enable_categorical=True)
+    dtest_reg = xgb.DMatrix(data_categ_test, data_value_test, enable_categorical=True)
+    pure_data = xgb.DMatrix(data_categ, data_value, enable_categorical=True)
+    
+    
+    
+    if True:
+        for i in range(0,1):
+            n = 1000
+            params = {"objective": "reg:pseudohubererror","reg_alpha":30,"reg_lambda":30
+                      ,"rate_drop":0.1,"gpu_id":0,'tree_method':'gpu_hist'}
+            evals = [(dtest_reg, "validation"),(dtrain_reg, "train") ]
+            reg = xgb.train(
+               params=params,
+               dtrain=dtrain_reg,
+               num_boost_round=n,
+               evals=evals,
+               verbose_eval=25,
+               xgb_model=reg,
+               early_stopping_rounds=10
+               )
+            pickle.dump(reg, open(r'model_saved_torch\modelxgboosterrorrow.pkl','wb'))
+    else:
+        ...
+
+    predicterr=reg.predict(pure_data)
+    
+
+    data1["predicterr"]=predicterr
     
     num_contracts=data1["perc_error"].count()
     
