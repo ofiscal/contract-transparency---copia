@@ -297,7 +297,7 @@ for numerator in range(0,100):
     
     if True:
         for i in range(0,1):
-            n = 1000
+            n = 100
             params = {"objective": "reg:pseudohubererror","reg_alpha":30,"reg_lambda":30
                       ,"rate_drop":0.1,"gpu_id":0,'tree_method':'gpu_hist'}
             evals = [(dtest_reg, "validation"),(dtrain_reg, "train") ]
@@ -370,7 +370,7 @@ for numerator in range(0,100):
     if True:
         for i in range(0,1):
             n = 1000
-            params = {"objective": "reg:pseudohubererror","reg_alpha":30,"reg_lambda":30
+            params = {"objective": "reg:pseudohubererror","reg_alpha":3,"reg_lambda":3
                       ,"rate_drop":0.1,"gpu_id":0,'tree_method':'gpu_hist'}
             evals = [(dtest_reg, "validation"),(dtrain_reg, "train") ]
             reg = xgb.train(
