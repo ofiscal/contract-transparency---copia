@@ -44,7 +44,7 @@ for numerator in range(0,100):
         lambda x:dt.datetime.strptime(x[:10],"%m/%d/%Y").year if type(x)==str else np.nan
     )
     
-    records=records[records["Fecha"]>=2024]
+    records=records[records["Fecha"]>=2022]
     #Loading CPI for real value updating
     CPI=pd.read_excel(path_CPI)
     CPI=CPI[["Year","Avg"]].dropna()
@@ -297,7 +297,7 @@ for numerator in range(0,100):
     
     if True:
         for i in range(0,1):
-            n = 50
+            n = 200
             params = {"objective": "reg:pseudohubererror","reg_alpha":60,"reg_lambda":60
                       ,"rate_drop":0.1,"gpu_id":0,'tree_method':'gpu_hist'}
             evals = [(dtest_reg, "validation"),(dtrain_reg, "train") ]
@@ -369,7 +369,7 @@ for numerator in range(0,100):
     
     if True:
         for i in range(0,1):
-            n = 50
+            n = 200
             params = {"objective": "reg:pseudohubererror","reg_alpha":60,"reg_lambda":60
                       ,"rate_drop":0.1,"gpu_id":0,'tree_method':'gpu_hist'}
             evals = [(dtest_reg, "validation"),(dtrain_reg, "train") ]
@@ -442,12 +442,12 @@ for numerator in range(0,100):
     import sklearn as sk
     print(sk.metrics.r2_score(data1["value_thousand_dolar"],data1["predict"]))
     data1["miles de dolares sobre estimación"]=data1["value_thousand_dolar"]-data1["predict"]
-    """
+"""
     try:
         data1.to_excel(r"data/resultados/col_tria"+str(numerator)+".xlsx")
     except Exception as e:
         print(e)
-    """
+"""
 """
 print(data1.count()[0])
 print(data1[data1["likelihood"]<0.05].count()[0])
