@@ -44,7 +44,7 @@ for numerator in range(0,100):
         lambda x:dt.datetime.strptime(x[:10],"%m/%d/%Y").year if type(x)==str else np.nan
     )
     
-    records=records[records["Fecha"]>=2022]
+    records=records[records["Fecha"]>=2024]
     #Loading CPI for real value updating
     CPI=pd.read_excel(path_CPI)
     CPI=CPI[["Year","Avg"]].dropna()
@@ -79,10 +79,22 @@ for numerator in range(0,100):
                    
                    'Tipo de Contrato',
                    "Codigo de Categoria Principal",
-                   "Duración del contrato"
+                   
 
                    ]
-
+    #genera una reducción de duplicados para evitar problema de nuevas variables en estimación
+    if True:
+        re=pd.DataFrame()
+        for i in variables_cat:
+            re[i]=records[i].drop_duplicates().reset_index()[i]
+        re.to_csv(r"data/limpio/diccionario_duplicados2.csv")
+    re=pd.read_csv(r"data/limpio/diccionario_duplicados2.csv",index_col=False)   
+           
+    for i in variables_cat:
+        #print(i)
+        records["keep"]=records[i].isin(re[i])
+        records[i]=records.apply(lambda row: row[i] if row["keep"] else "otro",axis=1)
+    
     joined=records
      
     #variables_reg=["compiledRelease/tender/enquiryPeriod/durationInDays"]
@@ -246,6 +258,16 @@ for numerator in range(0,100):
     
     predicted=pd.DataFrame(predict(100000, dataloader, model, loss_fn, optimizer))
     
+    categ=pd.get_dummies(joined[variables_cat].reset_index(drop=True).astype("str"))
+    
+    for i in re.columns:
+        for j in re[i].dropna():
+            #print(str(i)+"_"+str(j))
+            if str(i)+"_"+str(j) not in categ and not pd.isnull(j) and i!="Unnamed: 0" :
+                categ[str(i)+"_"+str(j)]=0
+    
+    data_categ=categ.merge(predicted,left_index=True, right_index=True)
+    data_categ=data_categ.merge(joined["Duración"],left_index=True, right_index=True)
 
     
     
@@ -280,7 +302,11 @@ for numerator in range(0,100):
     except:
         ...
     
-
+    #a=reg.feature_names
+    
+    data_categ.columns=data_categ.columns.astype(str)
+    
+    data_categ=data_categ[a]
     
     data_categ=predicted
     
@@ -297,8 +323,8 @@ for numerator in range(0,100):
     
     if True:
         for i in range(0,1):
-            n = 200
-            params = {"objective": "reg:pseudohubererror","reg_alpha":60,"reg_lambda":60
+            n = 500
+            params = {"objective": "reg:pseudohubererror","reg_alpha":1,"reg_lambda":1
                       ,"rate_drop":0.1,"gpu_id":0,'tree_method':'gpu_hist'}
             evals = [(dtest_reg, "validation"),(dtrain_reg, "train") ]
             reg = xgb.train(
@@ -307,7 +333,7 @@ for numerator in range(0,100):
                num_boost_round=n,
                evals=evals,
                verbose_eval=25,
-               xgb_model=reg,
+               #xgb_model=reg,
                early_stopping_rounds=2
                )
             pickle.dump(reg, open(r'model_saved_torch\modelxgboostnrow.pkl','wb'))
@@ -369,7 +395,7 @@ for numerator in range(0,100):
     
     if True:
         for i in range(0,1):
-            n = 200
+            n = 50
             params = {"objective": "reg:pseudohubererror","reg_alpha":60,"reg_lambda":60
                       ,"rate_drop":0.1,"gpu_id":0,'tree_method':'gpu_hist'}
             evals = [(dtest_reg, "validation"),(dtrain_reg, "train") ]
