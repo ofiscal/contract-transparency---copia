@@ -83,7 +83,7 @@ for numerator in range(0,100):
 
                    ]
     #genera una reducción de duplicados para evitar problema de nuevas variables en estimación
-    if True:
+    if False:
         re=pd.DataFrame()
         for i in variables_cat:
             re[i]=records[i].drop_duplicates().reset_index()[i]
@@ -267,7 +267,7 @@ for numerator in range(0,100):
                 categ[str(i)+"_"+str(j)]=0
     
     data_categ=categ.merge(predicted,left_index=True, right_index=True)
-    data_categ=data_categ.merge(joined["Duración"],left_index=True, right_index=True)
+    data_categ=data_categ.merge(joined["Duración del contrato"],left_index=True, right_index=True)
 
     
     
@@ -302,7 +302,7 @@ for numerator in range(0,100):
     except:
         ...
     
-    #a=reg.feature_names
+    a=reg.feature_names
     
     data_categ.columns=data_categ.columns.astype(str)
     
@@ -323,8 +323,8 @@ for numerator in range(0,100):
     
     if True:
         for i in range(0,1):
-            n = 500
-            params = {"objective": "reg:pseudohubererror","reg_alpha":1,"reg_lambda":1
+            n = 1000
+            params = {"objective": "reg:pseudohubererror","reg_alpha":10,"reg_lambda":10
                       ,"rate_drop":0.1,"gpu_id":0,'tree_method':'gpu_hist'}
             evals = [(dtest_reg, "validation"),(dtrain_reg, "train") ]
             reg = xgb.train(
@@ -333,7 +333,7 @@ for numerator in range(0,100):
                num_boost_round=n,
                evals=evals,
                verbose_eval=25,
-               #xgb_model=reg,
+               xgb_model=reg,
                early_stopping_rounds=2
                )
             pickle.dump(reg, open(r'model_saved_torch\modelxgboostnrow.pkl','wb'))
@@ -396,7 +396,7 @@ for numerator in range(0,100):
     if True:
         for i in range(0,1):
             n = 50
-            params = {"objective": "reg:pseudohubererror","reg_alpha":60,"reg_lambda":60
+            params = {"objective": "reg:pseudohubererror","reg_alpha":10,"reg_lambda":10
                       ,"rate_drop":0.1,"gpu_id":0,'tree_method':'gpu_hist'}
             evals = [(dtest_reg, "validation"),(dtrain_reg, "train") ]
             reg = xgb.train(
