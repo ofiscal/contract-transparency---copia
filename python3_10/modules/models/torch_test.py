@@ -65,7 +65,7 @@ for numerator in range(0,100):
     records["value_thousand_dolar"]=records.apply(lambda row:float(row["Valor del Contrato"])/(row["exchange_rate"]*row["Avg"]*1e3),axis=1)
     records["Codigo de Categoria Recortado"]=records["Codigo Principal de Categoria"].apply(lambda x:x[0:6])
 
-    #records=records[records["value_thousand_dolar"]<=10000]
+    records=records[records["value_thousand_dolar"]<=10000]
     
     records=records[records["value_thousand_dolar"]>=0.00001]
     records=records[records["Estado Resumen"]!="Presentación de oferta"]
