@@ -68,6 +68,8 @@ for numerator in range(0,100):
     
     records=records[records["value_thousand_dolar"]>=0.00001]
 
+    records['duracion numero'] = records["Duración del contrato"].str.extract(r'(\d+[.\d]*)').astype(float).replace(np.NaN,0)
+    records['duracion valor'] = records["Duración del contrato"].str.replace(r'(\d+[.\d]*)','').replace(np.NaN,"0")
     records=records.dropna(subset=["Descripcion del Proceso","value_thousand_dolar"])
     #we want to change any unknown variable to other
     
@@ -79,7 +81,7 @@ for numerator in range(0,100):
                    
                    'Tipo de Contrato',
                    "Codigo de Categoria Principal",
-                   
+                   'duracion valor'
 
                    ]
     #genera una reducción de duplicados para evitar problema de nuevas variables en estimación
@@ -267,7 +269,7 @@ for numerator in range(0,100):
                 categ[str(i)+"_"+str(j)]=0
     
     data_categ=categ.merge(predicted,left_index=True, right_index=True)
-    data_categ=data_categ.merge(joined["Duración del contrato"],left_index=True, right_index=True)
+
 
     
     
@@ -304,15 +306,18 @@ for numerator in range(0,100):
     
     a=reg.feature_names
     
-    data_categ.columns=data_categ.columns.astype(str)
+
     
+    
+    data_categ.columns=data_categ.columns.astype(str)
+    data_categ=data_categ.merge(joined['duracion numero'],how="left",left_index=True, right_index=True)
     data_categ=data_categ[a]
     
-    data_categ=predicted
+
     
 
     data_categ_train, data_categ_test, data_value_train, data_value_test = train_test_split(
-         data_categ, data_value, test_size=0.15, random_state=1,shuffle=True)
+         data_categ, data_value, test_size=0.15, random_state=1,shuffle=True, )
     
     
     dtrain_reg = xgb.DMatrix(data_categ_train, data_value_train, enable_categorical=True)
@@ -323,7 +328,7 @@ for numerator in range(0,100):
     
     if True:
         for i in range(0,1):
-            n = 1000
+            n = 200
             params = {"objective": "reg:pseudohubererror","reg_alpha":10,"reg_lambda":10
                       ,"rate_drop":0.1,"gpu_id":0,'tree_method':'gpu_hist'}
             evals = [(dtest_reg, "validation"),(dtrain_reg, "train") ]
@@ -395,7 +400,7 @@ for numerator in range(0,100):
     
     if True:
         for i in range(0,1):
-            n = 50
+            n = 200
             params = {"objective": "reg:pseudohubererror","reg_alpha":10,"reg_lambda":10
                       ,"rate_drop":0.1,"gpu_id":0,'tree_method':'gpu_hist'}
             evals = [(dtest_reg, "validation"),(dtrain_reg, "train") ]
