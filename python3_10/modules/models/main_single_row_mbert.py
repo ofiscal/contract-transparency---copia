@@ -143,18 +143,18 @@ for numerator in range(3,100):
     
             text1 = self.train_csv.iloc[index,0]
     
-            inputs = self.tokenizer.encode_plus(
+            inputs = self.tokenizer(
                 text1 ,
                 return_tensors="pt",
                 padding="max_length",
                 max_length=self.max_length
             )
-
-    
             return inputs
     from transformers import AutoTokenizer, ModernBertModel
     tokenizer = AutoTokenizer.from_pretrained("answerdotai/ModernBERT-base")
-    
+    model = ModernBertModel.from_pretrained("answerdotai/ModernBERT-base")
+    #tokenizer.model_max_length = 126
+
     dataset= BertDataset(tokenizer, max_length=200)
     batch_size=64
     dataloader=DataLoader(dataset=dataset,batch_size=batch_size)
@@ -198,33 +198,25 @@ for numerator in range(3,100):
                     l1_loss_example += torch.sum(torch.abs(param))
             return self.l1_strength * (l1_loss_example)
     
-    model = ModernBertModel.from_pretrained("answerdotai/ModernBERT-base")
-    
-    
-    
-    
-    
+    # Tokenize dataset
+
+
     def predict(epochs,dataloader,model,loss_fn,optimizer):
         num=1
         acc=0
         loop=tqdm(enumerate(dataloader),leave=False,total=len(dataloader))
         results=[]
         for batch, dl in loop:
-          ids=dl['ids']
-          token_type_ids=dl['token_type_ids']
-          mask= dl['mask']
-          label=dl['target']
-          label = label.unsqueeze(1)
-    
+
+
           optimizer.zero_grad()
     
           output=model(
-              #ids=ids,
-              #mask=mask,
-              #token_type_ids=token_type_ids
+              dl['input_ids'].cuda(),dl['attention_mask'][1].cuda()
+              
               )
-          label = label.type_as(output)
-          for i in output.cpu().detach().numpy():
+
+          for i in output.gpu().detach().numpy():
               results.append(i)
     
     
@@ -232,7 +224,6 @@ for numerator in range(3,100):
     
     
         return results
-    
     
     
     #model.load_state_dict(torch.load(r"model_saved_torch\primero_col.pt"))
