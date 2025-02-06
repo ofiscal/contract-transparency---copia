@@ -145,26 +145,17 @@ for numerator in range(3,100):
     
             inputs = self.tokenizer.encode_plus(
                 text1 ,
-                None,
-                pad_to_max_length=True,
-                add_special_tokens=True,
-                return_attention_mask=True,
-                max_length=self.max_length,
+                return_tensors="pt",
+                padding="max_length",
+                max_length=self.max_length
             )
-            ids = inputs["input_ids"]
-            token_type_ids = inputs["token_type_ids"]
-            mask = inputs["attention_mask"]
+
     
-            return {
-                'ids': torch.tensor(ids, dtype=torch.long).to(device),
-                'mask': torch.tensor(mask, dtype=torch.long).to(device),
-                'token_type_ids': torch.tensor(token_type_ids, dtype=torch.long).to(device),
-                'target': torch.tensor(self.train_csv.iloc[index, 1], dtype=torch.int).to(device)
-                }
+            return inputs
     from transformers import AutoTokenizer, ModernBertModel
     tokenizer = AutoTokenizer.from_pretrained("answerdotai/ModernBERT-base")
     
-    dataset= BertDataset(tokenizer, max_length=100)
+    dataset= BertDataset(tokenizer, max_length=200)
     batch_size=64
     dataloader=DataLoader(dataset=dataset,batch_size=batch_size)
     
@@ -228,9 +219,10 @@ for numerator in range(3,100):
           optimizer.zero_grad()
     
           output=model(
-              ids=ids,
-              mask=mask,
-              token_type_ids=token_type_ids)
+              #ids=ids,
+              #mask=mask,
+              #token_type_ids=token_type_ids
+              )
           label = label.type_as(output)
           for i in output.cpu().detach().numpy():
               results.append(i)
