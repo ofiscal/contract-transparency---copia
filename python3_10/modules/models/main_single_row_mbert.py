@@ -153,8 +153,8 @@ for numerator in range(3,100):
 
             mask = inputs['attention_mask']
             return {
-                'ids': torch.tensor(ids, dtype=torch.long).to(device),
-                'mask': torch.tensor(mask, dtype=torch.long).to(device),
+                'input_ids': torch.tensor(ids, dtype=torch.long).to(device),
+                'attention_mask': torch.tensor(mask, dtype=torch.long).to(device),
                 
                 }
     from transformers import AutoTokenizer, ModernBertModel
@@ -163,7 +163,7 @@ for numerator in range(3,100):
     #tokenizer.model_max_length = 126
 
     dataset= BertDataset(tokenizer, max_length=200)
-    batch_size=64
+    batch_size=1
     dataloader=DataLoader(dataset=dataset,batch_size=batch_size)
     
     class BERT(nn.Module):
@@ -216,14 +216,14 @@ for numerator in range(3,100):
         for batch, dl in loop:
 
           ids=dl['input_ids']
-          mask=dl['attention_mask']
+          mask=dl['attention_mask'][0]
           optimizer.zero_grad()
     
           output=model(
-              ids=ids,
-              mask=mask,
+              input_ids=ids,
+              attention_mask=mask,
               )
-          for i in output.cpu().detach().numpy():
+          for i in output:
               results.append(i)
     
     
@@ -251,7 +251,7 @@ for numerator in range(3,100):
     
     predicted=pd.DataFrame(predict(100000, dataloader, model, loss_fn, optimizer))
     
-    categ=pd.get_dummies(joined[variables_cat].reset_index(drop=True).astype("str"))
+    categ=pd.get_dummies(joined[variables_cat].reset_index(drop=True).astype("str"), dtype=int)
     
     for i in re.columns:
         for j in re[i].dropna():
@@ -295,17 +295,17 @@ for numerator in range(3,100):
     except:
         ...
     
-    a=reg.feature_names
+    #a=reg.feature_names
     
 
     
     
     data_categ.columns=data_categ.columns.astype(str)
     data_categ=data_categ.merge(joined['duracion numero'],how="left",left_index=True, right_index=True)
-    data_categ=data_categ[a]
+    #data_categ=data_categ[a]
     
 
-    
+    data_categ=data_categ.drop(columns=["0"])
 
     data_categ_train, data_categ_test, data_value_train, data_value_test = train_test_split(
          data_categ, data_value, test_size=0.15, random_state=1,shuffle=True, )
@@ -319,7 +319,7 @@ for numerator in range(3,100):
     
     if True:
         for i in range(0,1):
-            n = 25
+            n = 100
             params = {"objective": "reg:pseudohubererror","reg_alpha":70,"reg_lambda":70
                       ,"rate_drop":0.1,"gpu_id":0,'tree_method':'gpu_hist'}
             evals = [(dtest_reg, "validation"),(dtrain_reg, "train") ]
@@ -329,7 +329,7 @@ for numerator in range(3,100):
                num_boost_round=n,
                evals=evals,
                verbose_eval=25,
-               xgb_model=reg,
+               #xgb_model=reg,
                early_stopping_rounds=2
                )
             pickle.dump(reg, open(r'model_saved_torch\modelxgboostnrowmber.pkl','wb'))
@@ -379,6 +379,7 @@ for numerator in range(3,100):
     data_categ=predicted
     
     data_value=data1["perc_error"]
+    data_categ=data_categ.drop(columns=[0])
     data_categ_train, data_categ_test, data_value_train, data_value_test = train_test_split(
          data_categ, data_value, test_size=0.15, random_state=1,shuffle=True)
     
@@ -391,7 +392,7 @@ for numerator in range(3,100):
     
     if True:
         for i in range(0,1):
-            n = 25
+            n = 100
             params = {"objective": "reg:pseudohubererror","reg_alpha":70,"reg_lambda":70
                       ,"rate_drop":0.1,"gpu_id":0,'tree_method':'gpu_hist'}
             evals = [(dtest_reg, "validation"),(dtrain_reg, "train") ]
