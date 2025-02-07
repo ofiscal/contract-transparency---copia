@@ -149,7 +149,14 @@ for numerator in range(3,100):
                 padding="max_length",
                 max_length=self.max_length
             )
-            return inputs
+            ids = inputs['input_ids']
+
+            mask = inputs['attention_mask']
+            return {
+                'ids': torch.tensor(ids, dtype=torch.long).to(device),
+                'mask': torch.tensor(mask, dtype=torch.long).to(device),
+                
+                }
     from transformers import AutoTokenizer, ModernBertModel
     tokenizer = AutoTokenizer.from_pretrained("answerdotai/ModernBERT-base")
     model = ModernBertModel.from_pretrained("answerdotai/ModernBERT-base")
@@ -208,15 +215,15 @@ for numerator in range(3,100):
         results=[]
         for batch, dl in loop:
 
-
+          ids=dl['input_ids']
+          mask=dl['attention_mask']
           optimizer.zero_grad()
     
           output=model(
-              dl['input_ids'].cuda(),dl['attention_mask'][1].cuda()
-              
+              ids=ids,
+              mask=mask,
               )
-
-          for i in output.gpu().detach().numpy():
+          for i in output.cpu().detach().numpy():
               results.append(i)
     
     
