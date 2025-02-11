@@ -302,10 +302,10 @@ for numerator in range(0,100):
     
     data_categ.columns=data_categ.columns.astype(str)
     data_categ=data_categ.merge(joined['duracion numero'],how="left",left_index=True, right_index=True)
-    #data_categ=data_categ[a]
+    data_categ=data_categ[a]
     
 
-    data_categ=data_categ.drop(columns=["0"])
+    #data_categ=data_categ.drop(columns=["0"])
 
     data_categ_train, data_categ_test, data_value_train, data_value_test = train_test_split(
          data_categ, data_value, test_size=0.15, random_state=1,shuffle=True, )
@@ -321,7 +321,7 @@ for numerator in range(0,100):
         for i in range(0,1):
             n = 10000
             params = {"objective": "reg:pseudohubererror","reg_alpha":70,"reg_lambda":70
-                      ,"rate_drop":0.1,"gpu_id":0,'tree_method':'gpu_hist'}
+                      ,"rate_drop":0.1,"gpu_id":0}
             evals = [(dtest_reg, "validation"),(dtrain_reg, "train") ]
             reg = xgb.train(
                params=params,
@@ -330,7 +330,7 @@ for numerator in range(0,100):
                evals=evals,
                verbose_eval=25,
                xgb_model=reg,
-               early_stopping_rounds=2
+               early_stopping_rounds=10
                )
             pickle.dump(reg, open(r'model_saved_torch\modelxgboostnrowmber.pkl','wb'))
     else:
@@ -394,7 +394,7 @@ for numerator in range(0,100):
         for i in range(0,1):
             n = 10000
             params = {"objective": "reg:pseudohubererror","reg_alpha":70,"reg_lambda":70
-                      ,"rate_drop":0.1,"gpu_id":0,'tree_method':'gpu_hist'}
+                      ,"rate_drop":0.1,"gpu_id":0}
             evals = [(dtest_reg, "validation"),(dtrain_reg, "train") ]
             reg = xgb.train(
                params=params,
@@ -402,8 +402,8 @@ for numerator in range(0,100):
                num_boost_round=n,
                evals=evals,
                verbose_eval=25,
-               #xgb_model=reg,
-               early_stopping_rounds=2
+               xgb_model=reg,
+               early_stopping_rounds=10
                )
             pickle.dump(reg, open(r'model_saved_torch\modelxgboosterrorrowmber.pkl','wb'))
     else:
