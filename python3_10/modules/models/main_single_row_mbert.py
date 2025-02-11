@@ -319,7 +319,7 @@ for numerator in range(0,100):
     
     if True:
         for i in range(0,1):
-            n = 10000
+            n = 500
             params = {"objective": "reg:pseudohubererror","reg_alpha":70,"reg_lambda":70
                       ,"rate_drop":0.1,"gpu_id":0}
             evals = [(dtest_reg, "validation"),(dtrain_reg, "train") ]
@@ -392,7 +392,7 @@ for numerator in range(0,100):
     
     if True:
         for i in range(0,1):
-            n = 10000
+            n = 500
             params = {"objective": "reg:pseudohubererror","reg_alpha":70,"reg_lambda":70
                       ,"rate_drop":0.1,"gpu_id":0}
             evals = [(dtest_reg, "validation"),(dtrain_reg, "train") ]
@@ -454,12 +454,12 @@ for numerator in range(0,100):
     import sklearn as sk
     print(sk.metrics.r2_score(data1["value_thousand_dolar"],data1["predict"]))
     data1["miles de dolares sobre estimación"]=data1["value_thousand_dolar"]-data1["predict"]
-
+"""
     try:
         data1.to_excel(r"data/resultados/col_tria"+str(numerator)+".xlsx")
     except Exception as e:
         print(e)
-
+"""
 """
 print(data1.count()[0])
 print(data1[data1["likelihood"]<0.05].count()[0])
