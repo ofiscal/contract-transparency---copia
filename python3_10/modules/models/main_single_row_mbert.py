@@ -7,7 +7,7 @@ Original file is located at
 """
 ###
 ###
-for numerator in range(3,100):
+for numerator in range(0,100):
     import pandas as pd
     import datetime as dt
     import numpy as np
@@ -223,8 +223,8 @@ for numerator in range(3,100):
               input_ids=ids,
               attention_mask=mask,
               )
-          for i in output:
-              results.append(i)
+          for i in output[0]:
+              results.append(i[0][-1].cpu().detach().numpy())
     
     
         print(acc/num)
@@ -290,12 +290,12 @@ for numerator in range(3,100):
     data_value=joined[variables_y]
     
     try:
-        with open(r'model_saved_torch\modelxgboostnrow.pkl', "rb") as input_file:
+        with open(r'model_saved_torch\modelxgboostnrowmber.pkl', "rb") as input_file:
           reg = pickle.load(input_file)
     except:
         ...
     
-    #a=reg.feature_names
+    a=reg.feature_names
     
 
     
@@ -319,7 +319,7 @@ for numerator in range(3,100):
     
     if True:
         for i in range(0,1):
-            n = 100
+            n = 10000
             params = {"objective": "reg:pseudohubererror","reg_alpha":70,"reg_lambda":70
                       ,"rate_drop":0.1,"gpu_id":0,'tree_method':'gpu_hist'}
             evals = [(dtest_reg, "validation"),(dtrain_reg, "train") ]
@@ -329,7 +329,7 @@ for numerator in range(3,100):
                num_boost_round=n,
                evals=evals,
                verbose_eval=25,
-               #xgb_model=reg,
+               xgb_model=reg,
                early_stopping_rounds=2
                )
             pickle.dump(reg, open(r'model_saved_torch\modelxgboostnrowmber.pkl','wb'))
@@ -367,9 +367,9 @@ for numerator in range(3,100):
     ["perc_error"]
     
     
-    
+    #da
     try:
-        with open(r'model_saved_torch\modelxgboosterrorrow.pkl', "rb") as input_file:
+        with open(r'model_saved_torch\modelxgboosterrorrowmber.pkl', "rb") as input_file:
           reg = pickle.load(input_file)
     except:
         ...
@@ -392,7 +392,7 @@ for numerator in range(3,100):
     
     if True:
         for i in range(0,1):
-            n = 100
+            n = 10000
             params = {"objective": "reg:pseudohubererror","reg_alpha":70,"reg_lambda":70
                       ,"rate_drop":0.1,"gpu_id":0,'tree_method':'gpu_hist'}
             evals = [(dtest_reg, "validation"),(dtrain_reg, "train") ]
@@ -402,7 +402,7 @@ for numerator in range(3,100):
                num_boost_round=n,
                evals=evals,
                verbose_eval=25,
-               xgb_model=reg,
+               #xgb_model=reg,
                early_stopping_rounds=2
                )
             pickle.dump(reg, open(r'model_saved_torch\modelxgboosterrorrowmber.pkl','wb'))
@@ -424,23 +424,12 @@ for numerator in range(3,100):
 
 
     
-    mu,sigma,kurt=stats.t.fit(data1["perc_error"][data1["in_range"]==1])
+    mu,sigma,kurt=stats.t.fit(data1["perc_error"])
     
     mu
     
-    data1["perc_error"][data1["in_range"]==1].hist(bins=100,density=True)
-    
-    import matplotlib.pyplot as plt
-    import matplotlib.mlab as mlab
-    
-    n, bins, patches = plt.hist(
-        data1["perc_error"][data1["in_range"]==1],bins=100,density=True
-        )
-    
-    # add a 'best fit' line
-    y = stats.t.pdf( bins, mu, sigma,kurt)
-    l = plt.plot(bins, y, 'r--', linewidth=2)
-    
+
+
     distribution=stats.t( mu, sigma,kurt)
     
     distribution
