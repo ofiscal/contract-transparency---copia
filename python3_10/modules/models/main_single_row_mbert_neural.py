@@ -49,7 +49,7 @@ for numerator in range(0,100):
     exchange_rate=exchange_rate[["Fecha","exchange_rate"]]
     exchange_ratey=exchange_rate.groupby("Fecha").mean()
     #Loading the dataset  and cleaning dates
-    records=pd.read_csv(path_data_gener,nrows=2000000,skiprows=lambda x: x in range(0,2000000*numerator)
+    records=pd.read_csv(path_data_gener,nrows=1000000,skiprows=lambda x: x in range(1,1000000*numerator)
                         )
     #
     
