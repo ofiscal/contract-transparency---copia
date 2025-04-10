@@ -12,11 +12,22 @@ for numerator in range(0,100):
     import datetime as dt
     import numpy as np
     import os
+    from sentence_transformers import util
+    from sentence_transformers import SentenceTransformer
+    prompt = "Pauta | Publicidad | Prensa | Periodismo | Periodista | Divulgación | Multimedia publicitaria | Redes Sociales | propaganda en Televisión | publicidad en Radio | cuña Radial | Periódico |propaganda Audiovisual | Video | Revista | Comunicaciones divulgativas"
+
     def change_dolar(local_value:float,
         change_rate:float):
       return local_value*change_rate
     
-    
+    def semantic_search(prompt, df, model, top_k=1000):
+        # Generate embeddings for the descriptions
+        df['embeddings'] = df['Descripcion del Proceso'].apply(lambda x: model.encode(x, convert_to_tensor=True))
+
+        prompt_embedding = model.encode(prompt, convert_to_tensor=True)
+        similarities = df['embeddings'].apply(lambda x: util.pytorch_cos_sim(prompt_embedding, x).item())
+        df['similarity'] = similarities
+        return df
     
     
     path_change=r"data/sucio/Datos históricos USD_COP.xlsx"
@@ -37,7 +48,7 @@ for numerator in range(0,100):
     exchange_rate=exchange_rate[["Fecha","exchange_rate"]]
     exchange_ratey=exchange_rate.groupby("Fecha").mean()
     #Loading the dataset  and cleaning dates
-    records=pd.read_csv(path_data_gener,nrows=100000,skiprows=lambda x: x in range(1,100000*numerator))
+    records=pd.read_csv(path_data_gener,nrows=200000,skiprows=lambda x: x in range(1,200000*numerator))
     #
     
     records["Fecha"]=records["Fecha de Firma"].apply(
@@ -64,15 +75,17 @@ for numerator in range(0,100):
     #We scale every value in million dolars
     records["value_thousand_dolar"]=records.apply(lambda row:float(row["Valor del Contrato"])/(row["exchange_rate"]*row["Avg"]*1e3),axis=1)
 
-    records=records[records["value_thousand_dolar"]<=500]
+    records=records[records["value_thousand_dolar"]<=600]
     
     records=records[records["value_thousand_dolar"]>=0.00001]
-
+    model = SentenceTransformer("tomaarsen/static-similarity-mrl-multilingual-v1")
     records['duracion numero'] = records["Duración del contrato"].str.extract(r'(\d+[.\d]*)').astype(float).replace(np.nan,0)
     records['duracion valor'] = records["Duración del contrato"].str.replace(r'(\d+[.\d]*)','').replace(np.nan,"0")
     records=records.dropna(subset=["Descripcion del Proceso","value_thousand_dolar"])
-    #we want to change any unknown variable to other
     
+    #records=semantic_search(prompt,records,model)
+    #records=records[records['similarity']>0.20]
+    #we want to change any unknown variable to other
     #codigo de la entidad
     #Declaramos las variables que vamos a usar en predicción
     variables_y=["value_thousand_dolar"]
@@ -158,8 +171,8 @@ for numerator in range(0,100):
                 
                 }
     from transformers import AutoTokenizer, ModernBertModel
-    tokenizer = AutoTokenizer.from_pretrained("answerdotai/ModernBERT-base")
-    model = ModernBertModel.from_pretrained("answerdotai/ModernBERT-base")
+    tokenizer = AutoTokenizer.from_pretrained("mrm8488/modernbert-embed-base-ft-sts-spanish-matryoshka-768-64-5e")
+    model = ModernBertModel.from_pretrained("mrm8488/modernbert-embed-base-ft-sts-spanish-matryoshka-768-64-5e")
     #tokenizer.model_max_length = 126
 
     dataset= BertDataset(tokenizer, max_length=200)
@@ -169,7 +182,7 @@ for numerator in range(0,100):
     class BERT(nn.Module):
         def __init__(self):
             super(BERT, self).__init__()
-            self.bert_model = transformers.BertModel.from_pretrained("answerdotai/ModernBERT-base")
+            self.bert_model = transformers.BertModel.from_pretrained("mrm8488/modernbert-embed-base-ft-sts-spanish-matryoshka-768-64-5e")
             self.medium2 = nn.Linear(768, 15000)
             self.medium3 = nn.ReLU()
             self.medium4=nn.Linear(15000,15000,bias=True)
@@ -308,19 +321,19 @@ for numerator in range(0,100):
     #data_categ=data_categ.drop(columns=["0"])
 
     data_categ_train, data_categ_test, data_value_train, data_value_test = train_test_split(
-         data_categ, data_value, test_size=0.15, random_state=1,shuffle=True, )
+         data_categ, data_value, test_size=0.015, random_state=2,shuffle=True, )
     
     
     dtrain_reg = xgb.DMatrix(data_categ_train, data_value_train, enable_categorical=True)
     dtest_reg = xgb.DMatrix(data_categ_test, data_value_test, enable_categorical=True)
     pure_data = xgb.DMatrix(data_categ, data_value, enable_categorical=True)
-    
+    quantile_alpha=[0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9]
     
     
     if True:
         for i in range(0,1):
-            n = 500
-            params = {"objective": "reg:pseudohubererror","reg_alpha":70,"reg_lambda":70
+            n = 1000
+            params = {"objective": "reg:absoluteerror","reg_alpha":100,"reg_lambda":100
                       ,"rate_drop":0.1,"gpu_id":0}
             evals = [(dtest_reg, "validation"),(dtrain_reg, "train") ]
             reg = xgb.train(
@@ -330,7 +343,7 @@ for numerator in range(0,100):
                evals=evals,
                verbose_eval=25,
                xgb_model=reg,
-               early_stopping_rounds=10
+               early_stopping_rounds=3
                )
             pickle.dump(reg, open(r'model_saved_torch\modelxgboostnrowmber.pkl','wb'))
     else:
@@ -392,8 +405,8 @@ for numerator in range(0,100):
     
     if True:
         for i in range(0,1):
-            n = 500
-            params = {"objective": "reg:pseudohubererror","reg_alpha":70,"reg_lambda":70
+            n = 150
+            params = {"objective": "reg:pseudohubererror","reg_alpha":25,"reg_lambda":25
                       ,"rate_drop":0.1,"gpu_id":0}
             evals = [(dtest_reg, "validation"),(dtrain_reg, "train") ]
             reg = xgb.train(
@@ -403,7 +416,7 @@ for numerator in range(0,100):
                evals=evals,
                verbose_eval=25,
                xgb_model=reg,
-               early_stopping_rounds=10
+               early_stopping_rounds=2
                )
             pickle.dump(reg, open(r'model_saved_torch\modelxgboosterrorrowmber.pkl','wb'))
     else:
@@ -456,10 +469,11 @@ for numerator in range(0,100):
     data1["miles de dolares sobre estimación"]=data1["value_thousand_dolar"]-data1["predict"]
 """
     try:
-        data1.to_excel(r"data/resultados/col_tria"+str(numerator)+".xlsx")
+        data1.to_excel(r"data/resultados/col_triaco"+str(numerator)+".xlsx")
     except Exception as e:
         print(e)
-"""
+        """
+
 """
 print(data1.count()[0])
 print(data1[data1["likelihood"]<0.05].count()[0])

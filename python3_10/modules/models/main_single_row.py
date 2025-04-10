@@ -23,12 +23,9 @@ for numerator in range(0,100):
     path_data=r"/content/drive/MyDrive/Hack Corruption - Contractor/datos/records.csv"
     path_CPI=r"data/sucio/USA_CPI.xlsx"
     path_data_gener=r"data/sucio/SECOP_II_-_Contratos_Electr_nicos_20241205.csv"
-    
-    n=0
-    
-    
-    
-    
+    subpath=r"C:\Users\usuario\Documents\contract-transparency-copia\data"
+    aca=0
+
     #Loading the exchange rate for USD standaricing
     exchange_rate=pd.read_excel(path_change)
     exchange_rate["exchange_rate"]=exchange_rate.apply(lambda row:(row["Máximo"]+row["Mínimo"])/2,
@@ -39,12 +36,12 @@ for numerator in range(0,100):
     #Loading the dataset  and cleaning dates
     records=pd.read_csv(path_data_gener,nrows=100000,skiprows=lambda x: x in range(1,100000*numerator))
     #
-    
+
     records["Fecha"]=records["Fecha de Firma"].apply(
         lambda x:dt.datetime.strptime(x[:10],"%m/%d/%Y").year if type(x)==str else np.nan
     )
     
-    records=records[records["Fecha"]>=2024]
+    records=records[records["Fecha"]>=2023]
     #Loading CPI for real value updating
     CPI=pd.read_excel(path_CPI)
     CPI=CPI[["Year","Avg"]].dropna()
@@ -68,8 +65,8 @@ for numerator in range(0,100):
     
     records=records[records["value_thousand_dolar"]>=0.00001]
 
-    records['duracion numero'] = records["Duración del contrato"].str.extract(r'(\d+[.\d]*)').astype(float).replace(np.NaN,0)
-    records['duracion valor'] = records["Duración del contrato"].str.replace(r'(\d+[.\d]*)','').replace(np.NaN,"0")
+    records['duracion numero'] = records["Duración del contrato"].str.extract(r'(\d+[.\d]*)').astype(float).replace(np.nan,0)
+    records['duracion valor'] = records["Duración del contrato"].str.replace(r'(\d+[.\d]*)','').replace(np.nan,"0")
     records=records.dropna(subset=["Descripcion del Proceso","value_thousand_dolar"])
     #we want to change any unknown variable to other
     
@@ -341,7 +338,7 @@ for numerator in range(0,100):
                xgb_model=reg,
                early_stopping_rounds=2
                )
-            pickle.dump(reg, open(r'model_saved_torch\modelxgboostnrow.pkl','wb'))
+            pickle.dump(reg, open(r'model_saved_torch\modelxgboostnrowcom.pkl','wb'))
     else:
         ...
 
@@ -378,7 +375,7 @@ for numerator in range(0,100):
     
     
     try:
-        with open(r'model_saved_torch\modelxgboosterrorrow.pkl', "rb") as input_file:
+        with open(r'model_saved_torch\modelxgboosterrorrowcom.pkl', "rb") as input_file:
           reg = pickle.load(input_file)
     except:
         ...
