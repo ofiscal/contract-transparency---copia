@@ -77,7 +77,7 @@ for numerator in range(0,100):
     #We scale every value in million dolars
     records["value_thousand_dolar"]=records.apply(lambda row:float(row["Valor del Contrato"])/(row["exchange_rate"]*row["Avg"]*1e3),axis=1)
 
-    records=records[records["value_thousand_dolar"]<=10000]
+    records=records[records["value_thousand_dolar"]<=1000]
     
     records=records[records["value_thousand_dolar"]>=0.00001]
     model = SentenceTransformer("tomaarsen/static-similarity-mrl-multilingual-v1")
