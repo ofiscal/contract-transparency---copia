@@ -49,7 +49,8 @@ for numerator in range(0,100):
     exchange_rate=exchange_rate[["Fecha","exchange_rate"]]
     exchange_ratey=exchange_rate.groupby("Fecha").mean()
     #Loading the dataset  and cleaning dates
-    records=pd.read_csv(path_data_gener,nrows=1000000,skiprows=lambda x: x in range(1,200000*numerator))
+    records=pd.read_csv(path_data_gener,nrows=2000000,skiprows=lambda x: x in range(0,2000000*numerator)
+                        )
     #
     
     records["Fecha"]=records["Fecha de Firma"].apply(
@@ -76,7 +77,7 @@ for numerator in range(0,100):
     #We scale every value in million dolars
     records["value_thousand_dolar"]=records.apply(lambda row:float(row["Valor del Contrato"])/(row["exchange_rate"]*row["Avg"]*1e3),axis=1)
 
-    records=records[records["value_thousand_dolar"]<=600]
+    records=records[records["value_thousand_dolar"]<=10000]
     
     records=records[records["value_thousand_dolar"]>=0.00001]
     model = SentenceTransformer("tomaarsen/static-similarity-mrl-multilingual-v1")
@@ -99,7 +100,7 @@ for numerator in range(0,100):
 
                    ]
     #genera una reducción de duplicados para evitar problema de nuevas variables en estimación
-    if True:
+    if False:
         re=pd.DataFrame()
         for i in variables_cat:
             re[i]=records[i].drop_duplicates().reset_index()[i]
@@ -119,9 +120,10 @@ for numerator in range(0,100):
 
     #variables_reg=["compiledRelease/tender/enquiryPeriod/durationInDays"]
 
-    neuralmodel= sklearn.neural_network.MLPRegressor(hidden_layer_sizes=(100,),
-        activation='relu', solver='adam', alpha=0.0001, batch_size='auto',
-        learning_rate='constant', validation_fraction=0.1,random_state=0, verbose=True)
+    neuralmodel= sklearn.neural_network.MLPRegressor(hidden_layer_sizes=(50,10,),
+        activation='relu', solver='adam', alpha=0.01, batch_size='auto',
+        learning_rate='adaptive', validation_fraction=0.1,random_state=0,
+        verbose=True, early_stopping=True,warm_start=True)
     
     joined = categ.merge(embeddings,left_index=True, right_index=True)
     X=joined
