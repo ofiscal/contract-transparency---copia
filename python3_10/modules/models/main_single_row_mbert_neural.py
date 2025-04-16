@@ -147,16 +147,17 @@ for numerator in range(0,100):
         activation='relu', solver='adam', alpha=0.13, batch_size='auto',
         learning_rate='adaptive', validation_fraction=0.1,random_state=0,
         verbose=True, early_stopping=True,warm_start=True)
-    if False:
-        neuralmodel.partial_fit(X,records["value_thousand_dolar"])
-        pickle.dump(neuralmodel, open(r'model_saved_torch\modelneuralmber.pkl','wb'))
-    else:
-        with open(r'model_saved_torch\modelneuralmber.pkl', "rb") as input_file:
-          neuralmodel = pickle.load(input_file)
+    
+    with open(r'model_saved_torch\modelneuralmber.pkl', "rb") as input_file:
+      neuralmodel = pickle.load(input_file)    
+
+
     features=neuralmodel.feature_names_in_.tolist()
     X[[x for x in features if x not in X.columns]] = 0
     X=X[features]
-    hat=pd.Series(neuralmodel.predict(X))
+
+
+    hat=pd.Series(neuralmodel.predict(X), name='predict')
     
     print(neuralmodel.score(X,records["value_thousand_dolar"]))
     try:
