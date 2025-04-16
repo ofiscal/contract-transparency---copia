@@ -1,0 +1,250 @@
+,Ciudad,Orden,Modalidad de Contratacion,Tipo de Contrato,Codigo de Categoria Principal
+0,No Definido,Nacional,Contratación directa,Prestación de servicios,V1.80111500
+1,Popayán,Territorial,Contratación régimen especial,Decreto 092 de 2017,V1.80111600
+2,Bogotá,Corporación Autónoma,Selección abreviada subasta inversa,Otro,V1.80101509
+3,Risaralda,,Mínima cuantía,Suministros,V1.80111701
+4,Floridablanca,,Selección Abreviada de Menor Cuantía,Obra,V1.80101500
+5,Santa Marta,,Contratación régimen especial (con ofertas),Interventoría,V1.80111604
+6,Pasto,,Concurso de méritos abierto,Compraventa,V1.85101600
+7,Caqueza,,Licitación pública,Arrendamiento de inmuebles,V1.86132000
+8,Cartagena,,Contratación Directa (con ofertas),Consultoría,V1.80111601
+9,Fundación,,,Arrendamiento de muebles,V1.80111620
+10,Gachancipá,,,Seguros,V1.80101600
+11,Armenia,,,,V1.78111800
+12,Chía,,,,V1.80111501
+13,Entrerrios,,,,V1.80111700
+14,Cali,,,,V1.86111501
+15,Ibagué,,,,V1.77101707
+16,Guadalajara De Buga,,,,V1.93151500
+17,Tunja,,,,V1.85121600
+18,Tota,,,,V1.77101701
+19,Manizales,,,,V1.93141811
+20,Pereira,,,,V1.85101604
+21,Turbaco,,,,V1.80111616
+22,Valledupar,,,,V1.50131700
+23,Acacías,,,,V1.85101601
+24,Luruaco,,,,V1.85101509
+25,Santa Rosa De Cabal,,,,V1.72103300
+26,Medellín,,,,V1.72141100
+27,San Miguel,,,,V1.15101505
+28,Quibdó,,,,V1.93151514
+29,Bucaramanga,,,,V1.80141607
+30,San Onofre,,,,V1.80101706
+31,Miraflores,,,,V1.25101703
+32,San Gil,,,,V1.82111901
+33,Gachetá,,,,V1.48101800
+34,Santander De Quilichao,,,,V1.76111501
+35,Bello,,,,V1.70111503
+36,Fonseca,,,,V1.80161500
+37,Jamundí,,,,V1.93141500
+38,Villavicencio,,,,V1.82101600
+39,Barranquilla,,,,V1.86101610
+40,Bojacá,,,,V1.81101513
+41,Puerto Asís,,,,V1.85101508
+42,Socorro,,,,V1.94131607
+43,San Pedro De Uraba,,,,V1.80121600
+44,Guacarí,,,,V1.82141504
+45,Armero,,,,V1.93141702
+46,Dosquebradas,,,,V1.80161504
+47,Herveo,,,,V1.85101707
+48,Caldas,,,,V1.72141001
+49,Girón,,,,V1.41116200
+50,Pacho,,,,V1.53102102
+51,Cúcuta,,,,V1.40101701
+52,Nobsa,,,,V1.73131800
+53,Victoria,,,,V1.86101710
+54,Florida,,,,V1.93141507
+55,Yopal,,,,V1.93151501
+56,Girardot,,,,V1.93141701
+57,Villeta,,,,V1.41115800
+58,Motavita,,,,V1.53103100
+59,Soacha,,,,V1.93141506
+60,Cota,,,,V1.80101505
+61,Barrancabermeja,,,,V1.86101800
+62,Ginebra,,,,V1.15101500
+63,Sincelejo,,,,V1.72101516
+64,Flandes,,,,V1.72141000
+65,Villa Del Rosario,,,,V1.85101701
+66,Ricaurte,,,,V1.93131703
+67,Albán,,,,V1.80111614
+68,Cogua,,,,V1.90101800
+69,Matanza,,,,V1.81111805
+70,Leticia,,,,V1.80121704
+71,Uribia,,,,V1.72102900
+72,Palmas Del Socorro,,,,V1.41121800
+73,San Vicente Del Caguán,,,,UNSPECIFIED
+74,La Calera,,,,V1.90101700
+75,Retiro,,,,V1.80111607
+76,Los Patios,,,,V1.85101700
+77,Rivera,,,,V1.41121816
+78,Montería,,,,V1.15121500
+79,Arbeláez,,,,V1.94132001
+80,Zipaquirá,,,,V1.81141601
+81,Tocancipá,,,,V1.81101500
+82,Soledad,,,,V1.81111811
+83,Tauramena,,,,V1.86101700
+84,Florencia,,,,V1.82141500
+85,Belén De Los Andaquies,,,,V1.81112200
+86,Agua De Dios,,,,V1.80101604
+87,Valdivia,,,,V1.70122000
+88,Galapa,,,,V1.78181500
+89,Aguazul,,,,V1.80161501
+90,Boavita,,,,V1.86101508
+91,Mocoa,,,,V1.76111500
+92,Riohacha,,,,V1.95122300
+93,Potosí,,,,V1.80131500
+94,Candelaria,,,,V1.86121500
+95,Sampués,,,,V1.56101500
+96,Peñol,,,,V1.80121601
+97,Puerto López,,,,V1.23121614
+98,Maicao,,,,V1.80141500
+99,Mosquera,,,,V1.85101705
+100,Cartago,,,,V1.91111903
+101,Neiva,,,,V1.95111503
+102,Albania,,,,V1.77101700
+103,Norcasia,,,,V1.45111713
+104,La Estrella,,,,V1.50181901
+105,Pradera,,,,V1.78181507
+106,La Tebaida,,,,V1.80101601
+107,Chinácota,,,,V1.70151800
+108,Encino,,,,V1.93131600
+109,La Dorada,,,,V1.93151507
+110,Betulia,,,,V1.84111501
+111,Quimbaya,,,,V1.78131800
+112,Socotá,,,,V1.72151600
+113,Tibasosa,,,,V1.90141600
+114,Castilla La Nueva,,,,V1.85121902
+115,La Jagua De Ibirico,,,,V1.25101503
+116,Tibú,,,,V1.46191600
+117,Magangué,,,,V1.93141703
+118,Cajicá,,,,V1.95111600
+119,Itagui,,,,V1.80101507
+120,Envigado,,,,V1.80161506
+121,Caucasia,,,,V1.86111600
+122,Tenjo,,,,V1.77111501
+123,Turbo,,,,V1.84111502
+124,Santa Rosa,,,,V1.70141803
+125,Puerto Boyacá,,,,V1.14111500
+126,Puerto Rico,,,,V1.86131601
+127,Landázuri,,,,V1.85121901
+128,Anserma,,,,V1.47131700
+129,Distrito Capital,,,,V1.92101501
+130,Buriticá,,,,V1.90152100
+131,El Carmen De Viboral,,,,V1.41115600
+132,Sabaneta,,,,V1.56101606
+133,Palmira,,,,V1.55101500
+134,Espinal,,,,V1.86101808
+135,Sogamoso,,,,V1.81111803
+136,Dagua,,,,V1.81161501
+137,Guatape,,,,V1.82101603
+138,Girardota,,,,V1.84111802
+139,Sevilla,,,,V1.42271718
+140,Sitionuevo,,,,V1.92121504
+141,Somondoco,,,,V1.80121609
+142,Samacá,,,,V1.85121700
+143,San Luis,,,,V1.94121514
+144,San Andrés,,,,V1.80101700
+145,Ocaña,,,,V1.50221303
+146,Tame,,,,V1.85122101
+147,La Ceja,,,,V1.85121608
+148,Guamo,,,,V1.81112501
+149,Inírida,,,,V1.30121600
+150,Guarne,,,,V1.93141808
+151,Falan,,,,V1.82151704
+152,Mogotes,,,,V1.81111501
+153,Villamaría,,,,V1.84111603
+154,Paipa,,,,V1.80101506
+155,Abrego,,,,V1.81111820
+156,Valle De San Juan,,,,V1.85122102
+157,Madrid,,,,V1.82121505
+158,Sibaté,,,,V1.49101707
+159,Rionegro,,,,V1.83121700
+160,Yarumal,,,,V1.80131802
+161,Funza,,,,V1.46171610
+162,Puerto Carreño,,,,V1.86132001
+163,Alejandría,,,,V1.81111500
+164,Arauca,,,,V1.85111502
+165,San José Del Guaviare,,,,V1.72151500
+166,Piendamó,,,,V1.72153600
+167,Mariquita,,,,V1.78111808
+168,Puerres,,,,V1.72111001
+169,Choachí,,,,V1.40141700
+170,Zarzal,,,,V1.43202000
+171,La Mesa,,,,V1.80111504
+172,La Unión,,,,V1.85122003
+173,Pesca,,,,V1.94131603
+174,Circasia,,,,V1.78101800
+175,Facatativá,,,,V1.80121700
+176,Soatá,,,,V1.77101604
+177,San Mateo,,,,V1.73152103
+178,Pamplona,,,,V1.86131900
+179,La Llanada,,,,V1.84121803
+180,Pitalito,,,,V1.71121618
+181,El Cerrito,,,,V1.80131501
+182,Tuluá,,,,V1.42291609
+183,La Salina,,,,V1.42295400
+184,Abejorral,,,,V1.84131500
+185,Támesis,,,,V1.82101601
+186,Clemencia,,,,V1.81101700
+187,Santa Rosa Del Sur,,,,V1.93141700
+188,Corrales,,,,V1.72154010
+189,Turbaná,,,,V1.14111818
+190,San Antonio Del Tequendama,,,,V1.93141509
+191,Puerto Colombia,,,,V1.81101505
+192,Santafé De Antioquia,,,,V1.80141902
+193,Apartadó,,,,V1.93141504
+194,Tasco,,,,V1.43231500
+195,Venecia,,,,V1.51181800
+196,Zetaquira,,,,V1.86111701
+197,Maceo,,,,V1.72101500
+198,La Plata,,,,V1.80111703
+199,Riosucio,,,,V1.81141900
+200,Altamira,,,,V1.80111612
+201,Simití,,,,V1.12141900
+202,Pamplonita,,,,V1.85121502
+203,La Uvita,,,,V1.46171622
+204,Acevedo,,,,V1.81151700
+205,Montenegro,,,,V1.86101810
+206,Yumbo,,,,V1.77101503
+207,Melgar,,,,V1.48101908
+208,Cucaita,,,,V1.90141603
+209,La Paz,,,,V1.31162800
+210,Ipiales,,,,V1.82101602
+211,Vélez,,,,V1.85122001
+212,San Martín,,,,V1.72101507
+213,Sonson,,,,V1.44121600
+214,El Santuario,,,,V1.77101805
+215,Gama,,,,V1.80131502
+216,Briceño,,,,V1.80101603
+217,Curití,,,,V1.81151600
+218,Villagarzón,,,,V1.42142800
+219,Piedecuesta,,,,V1.90141500
+220,Fresno,,,,V1.93131609
+221,Filandia,,,,V1.80111623
+222,Puerto Salgar,,,,V1.82101801
+223,Chinchiná,,,,V1.86111802
+224,Bosconia,,,,V1.44102304
+225,Honda,,,,V1.11111600
+226,Villanueva,,,,V1.52161547
+227,Ortega,,,,V1.86101702
+228,Gachantivá,,,,V1.81101512
+229,Manzanares,,,,V1.83121703
+230,Aguachica,,,,V1.43233201
+231,Carepa,,,,V1.93141501
+232,Don Matías,,,,V1.85131708
+233,Arboletes,,,,V1.85101702
+234,Duitama,,,,V1.77101600
+235,Sopó,,,,V1.50111500
+236,Garzón,,,,V1.82111804
+237,Santa Rosa De Osos,,,,V1.11162100
+238,Simacota,,,,V1.20102301
+239,Villa De San Diego De Ubate,,,,V1.93142009
+240,Güicán,,,,V1.93141707
+241,Campoalegre,,,,V1.90101603
+242,Calarca,,,,V1.72151400
+243,Buenaventura,,,,V1.84111701
+244,Fuente De Oro,,,,V1.84131503
+245,Barbosa,,,,V1.93131502
+246,Angelópolis,,,,V1.72101511
+247,Saldaña,,,,V1.43201800
+248,Yondó,,,,V1.81141606

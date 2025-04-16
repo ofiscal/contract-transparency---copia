@@ -153,10 +153,10 @@ for numerator in range(0,100):
     else:
         with open(r'model_saved_torch\modelneuralmber.pkl', "rb") as input_file:
           neuralmodel = pickle.load(input_file)
-          
-    X[[x for x in X.columns if x not in neuralmodel.feature_names_in_.tolist()]] = 0
-    
-    
+    features=neuralmodel.feature_names_in_.tolist()
+    X[[x for x in features if x not in X.columns]] = 0
+    X[[x for x in X.columns if x not in features]] = 0
+    X=X[features]
     hat=neuralmodel.predict(X)
     
     neuralmodel.score(X,records["value_thousand_dolar"])
