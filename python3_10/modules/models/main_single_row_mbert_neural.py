@@ -135,7 +135,7 @@ for numerator in range(0,100):
         
     joinedpar=records
     categ=pd.get_dummies(records[variables_cat].reset_index(drop=True).astype("str"), dtype=int)
-    
+    categ=categ.merge(records["dias"],left_index=True, right_index=True,how="left")
     numpdata=joinedpar['Descripcion del Proceso'].apply(lambda x: model.encode(x, convert_to_numpy=True))
     embeddings=pd.DataFrame(np.array([np.array(xi) for xi in numpdata]))
     joined = categ.merge(embeddings,left_index=True, right_index=True)
