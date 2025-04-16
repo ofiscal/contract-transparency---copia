@@ -144,7 +144,7 @@ for numerator in range(0,100):
     #variables_reg=["compiledRelease/tender/enquiryPeriod/durationInDays"]
 
     neuralmodel= sklearn.neural_network.MLPRegressor(hidden_layer_sizes=(50,10,),
-        activation='relu', solver='adam', alpha=0.01, batch_size='auto',
+        activation='relu', solver='adam', alpha=0.13, batch_size='auto',
         learning_rate='adaptive', validation_fraction=0.1,random_state=0,
         verbose=True, early_stopping=True,warm_start=True)
     if False:
