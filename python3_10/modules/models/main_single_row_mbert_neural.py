@@ -155,11 +155,10 @@ for numerator in range(0,100):
           neuralmodel = pickle.load(input_file)
     features=neuralmodel.feature_names_in_.tolist()
     X[[x for x in features if x not in X.columns]] = 0
-    X[[x for x in X.columns if x not in features]] = 0
     X=X[features]
     hat=neuralmodel.predict(X)
     
-    neuralmodel.score(X,records["value_thousand_dolar"])
+    print(neuralmodel.score(X,records["value_thousand_dolar"]))
     
     
     
