@@ -5,7 +5,7 @@ Daniel Duque Lozano
 Original file is located at
     https://colab.research.google.com/drive/1t6CbdAjL3uM2YDWrsLiQbI96rYxKMDIo
 """
-###
+
 ###
 import pandas as pd
 import datetime as dt
@@ -148,7 +148,7 @@ for numerator in range(0,100):
         learning_rate='adaptive', validation_fraction=0.1,random_state=0,
         verbose=True, early_stopping=True,warm_start=True)
     if False:
-        neuralmodel.fit(X,records["value_thousand_dolar"])
+        neuralmodel.partial_fit(X,records["value_thousand_dolar"])
         pickle.dump(neuralmodel, open(r'model_saved_torch\modelneuralmber.pkl','wb'))
     else:
         with open(r'model_saved_torch\modelneuralmber.pkl', "rb") as input_file:
@@ -156,10 +156,13 @@ for numerator in range(0,100):
     features=neuralmodel.feature_names_in_.tolist()
     X[[x for x in features if x not in X.columns]] = 0
     X=X[features]
-    hat=neuralmodel.predict(X)
+    hat=pd.Series(neuralmodel.predict(X))
     
     print(neuralmodel.score(X,records["value_thousand_dolar"]))
-    
+    try:
+        records.reset_index().merge(hat,left_index=True, right_index=True).to_excel(r"data/resultados/neur_pre"+str(numerator)+".xlsx")
+    except Exception as e:
+        print(e)
     
     
     
