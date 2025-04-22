@@ -33,8 +33,8 @@ prompt = "contratar con medios de comunicación"
 
 
 for i in os.listdir(path):
-    print(i)
-    if i[0:12]=="col_tria_err":
+    print(i[0:8])
+    if i[0:8]=="neur_pre":
         if n==0:
             data=pd.read_excel(path+r"/"+i)
             #data=semantic_search(prompt, data, model)
@@ -45,12 +45,12 @@ for i in os.listdir(path):
             data=pd.concat([data,data1])
             
 
-data["Descripción del Procedimiento"] = data["Descripción del Procedimiento"].str.replace('\\r\\n', ' ', regex=True)
-data["Nombre del Procedimiento"] = data["Nombre del Procedimiento"].str.replace('\\r\\n', ' ', regex=True)
-data=data.drop(["Unnamed: 0.1","Unnamed: 0"],axis=1)
+data["Descripcion del Proceso"] = data["Descripcion del Proceso"].str.replace('\\r\\n', ' ', regex=True)
+#data["Nombre del Procedimiento"] = data["Nombre del Procedimiento"].str.replace('\\r\\n', ' ', regex=True)
+data=data.drop(["Unnamed: 0"],axis=1)
 data=data.drop(['embeddings'],axis=1)
 
 # Initialize the model
 
 
-data.to_csv(path+r"/"+"compilado_error.csv",index=False,encoding="latin-1",sep=';')
+data.to_csv(path+r"/"+"compilado_error_neu.csv",index=False,sep=';')

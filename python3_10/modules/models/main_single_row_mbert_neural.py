@@ -95,9 +95,9 @@ for numerator in range(0,100):
     #We scale every value in million dolars
     records["value_thousand_dolar"]=records.apply(lambda row:float(row["Valor del Contrato"])/(row["exchange_rate"]*row["Avg"]*1e3),axis=1)
 
-    records=records[records["value_thousand_dolar"]<=1000]
+    #records=records[records["value_thousand_dolar"]<=1000]
     
-    records=records[records["value_thousand_dolar"]>=0.00001]
+    #records=records[records["value_thousand_dolar"]>=0.00001]
     model = SentenceTransformer("tomaarsen/static-similarity-mrl-multilingual-v1")
     records['duracion numero'] = records["Duración del contrato"].str.extract(r'(\d+[.\d]*)').astype(float).replace(np.nan,0)
     records['duracion valor'] = records["Duración del contrato"].str.replace(r'(\d+[.\d]*)','').replace(np.nan,"0")
@@ -142,7 +142,7 @@ for numerator in range(0,100):
     X=joined
     X.columns = X.columns.astype(str) 
     #variables_reg=["compiledRelease/tender/enquiryPeriod/durationInDays"]
-
+##
     neuralmodel= sklearn.neural_network.MLPRegressor(hidden_layer_sizes=(50,10,),
         activation='relu', solver='adam', alpha=0.13, batch_size='auto',
         learning_rate='adaptive', validation_fraction=0.1,random_state=0,
@@ -155,9 +155,9 @@ for numerator in range(0,100):
     features=neuralmodel.feature_names_in_.tolist()
     X[[x for x in features if x not in X.columns]] = 0
     X=X[features]
-    if True:
+    if False:
         neuralmodel.fit(X,records["value_thousand_dolar"]) 
-        pickle.dump(neuralmodel, open(r'model_saved_torch\modelxgboosterrorrowmber.pkl','wb'))
+        pickle.dump(neuralmodel, open(r'model_saved_torch\modelneuralmber.pkl','wb'))
 
     hat=pd.Series(neuralmodel.predict(X), name='predict')
     
