@@ -95,9 +95,9 @@ for numerator in range(0,100):
     #We scale every value in million dolars
     records["value_thousand_dolar"]=records.apply(lambda row:float(row["Valor del Contrato"])/(row["exchange_rate"]*row["Avg"]*1e3),axis=1)
 
-    #records=records[records["value_thousand_dolar"]<=1000]
+    records=records[records["value_thousand_dolar"]<=100]
     
-    #records=records[records["value_thousand_dolar"]>=0.00001]
+    records=records[records["value_thousand_dolar"]>=0.00001]
     model = SentenceTransformer("tomaarsen/static-similarity-mrl-multilingual-v1")
     records['duracion numero'] = records["Duración del contrato"].str.extract(r'(\d+[.\d]*)').astype(float).replace(np.nan,0)
     records['duracion valor'] = records["Duración del contrato"].str.replace(r'(\d+[.\d]*)','').replace(np.nan,"0")
@@ -142,13 +142,13 @@ for numerator in range(0,100):
     X=joined
     X.columns = X.columns.astype(str) 
     #variables_reg=["compiledRelease/tender/enquiryPeriod/durationInDays"]
-##
-    neuralmodel= sklearn.neural_network.MLPRegressor(hidden_layer_sizes=(50,10,),
-        activation='relu', solver='adam', alpha=0.13, batch_size='auto',
+
+    neuralmodel= sklearn.neural_network.MLPRegressor(hidden_layer_sizes=(200,100,10,),
+        activation='relu', solver='adam', alpha=0.20, batch_size='auto',
         learning_rate='adaptive', validation_fraction=0.1,random_state=0,
-        verbose=True, early_stopping=True,warm_start=True)
+        verbose=True, early_stopping=True,warm_start=True, max_iter=7)
     
-    with open(r'model_saved_torch\modelneuralmber.pkl', "rb") as input_file:
+    with open(r'model_saved_torch\modelneuralmber1.pkl', "rb") as input_file:
       neuralmodel = pickle.load(input_file)    
 
 
@@ -157,7 +157,7 @@ for numerator in range(0,100):
     X=X[features]
     if False:
         neuralmodel.fit(X,records["value_thousand_dolar"]) 
-        pickle.dump(neuralmodel, open(r'model_saved_torch\modelneuralmber.pkl','wb'))
+        pickle.dump(neuralmodel, open(r'model_saved_torch\modelneuralmber1.pkl','wb'))
 
     hat=pd.Series(neuralmodel.predict(X), name='predict')
     
