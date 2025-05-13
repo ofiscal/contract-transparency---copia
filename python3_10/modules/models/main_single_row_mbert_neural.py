@@ -155,7 +155,7 @@ for numerator in range(0,100):
     features=neuralmodel.feature_names_in_.tolist()
     X[[x for x in features if x not in X.columns]] = 0
     X=X[features]
-    if False:
+    if True:
         neuralmodel.fit(X,records["value_thousand_dolar"]) 
         pickle.dump(neuralmodel, open(r'model_saved_torch\modelneuralmber1.pkl','wb'))
 
