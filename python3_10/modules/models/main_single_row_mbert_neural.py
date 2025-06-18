@@ -47,12 +47,20 @@ def switch_time(frecue,dato):
 for numerator in range(0,100):
 
     prompt = "Pauta | Publicidad | Prensa | Periodismo | Periodista | Divulgación | Multimedia publicitaria | Redes Sociales | propaganda en Televisión | publicidad en Radio | cuña Radial | Periódico |propaganda Audiovisual | Video | Revista | Comunicaciones divulgativas"
-
-
+    prompt=" catering | meseros | chefs | alta cocina | desayunos | almuerzos | comidas | alimentación | servir comidas preparadas | bebidas |  "
+    prompt="""plasticos | productos desechables | envases alimentarios |
+    logistica / operador logistico / detergentes | elementos de aseo | PET | Tereftalato de polietileno |
+    policloruro de vinilo | pvc | polietileno de alta densidad |hdpe |
+    poliestireno| policarbonato| discos compactos | suministro de papeleria|
+    empaques| botellas| contenedores| pead| polietileno de baja densidad| pebd|
+    ldpe| icopor| poliestireno expandido| plásticos de un sólo uso| acrílico, """
+    #quitar polizas, revisar ferreteria, elementos veterinarios pnn, limpiar prestación de servicios
+    #
+    prompt="reduccion de plasticos de un solo uso | productos biodegradables|compostables |materiales reutilizados | materiales recuperados | posconsumo |laboratorio clínico| materiales reciclados| reducción de plásticos| empaques sostenibles| envases sostenibles."
     path_change=r"data/sucio/Datos históricos USD_COP.xlsx"
     path_data=r"/content/drive/MyDrive/Hack Corruption - Contractor/datos/records.csv"
     path_CPI=r"data/sucio/USA_CPI.xlsx"
-    path_data_gener=r"data/sucio/SECOP_II_-_Contratos_Electr_nicos_20241205.csv"
+    path_data_gener=r"data/sucio/SECOP_II_-_Contratos_Electr_nicos_20250513.csv"
     
     n=0
     
@@ -86,6 +94,7 @@ for numerator in range(0,100):
     
     #We use the last inflation data and normalize everything to the last year
     records=records.merge(CPI,how="left",left_on=["Fecha"],right_on=["Year"])
+    
     records["Avg"]=records["Avg"].fillna(last_year).apply(lambda x:x/last_year)
     try:
         records["Valor del Contrato"]=records["Valor del Contrato"].str.replace(",","")
@@ -105,9 +114,10 @@ for numerator in range(0,100):
     
     records["dias"]=records.apply(lambda row:switch_time(frecue=row["frecuenc"],dato=row['duracion numero']),axis=1)
     records=records.dropna(subset=["Descripcion del Proceso","value_thousand_dolar"])
-    
-    #records=semantic_search(prompt,records,model)
-    #records=records[records['similarity']>0.20]
+    #
+    if False:
+        records=semantic_search(prompt,records,model)
+        records=records[records['similarity']>0.175]
     #we want to change any unknown variable to other
     #codigo de la entidad
     #Declaramos las variables que vamos a usar en predicción
@@ -143,21 +153,21 @@ for numerator in range(0,100):
     X.columns = X.columns.astype(str) 
     #variables_reg=["compiledRelease/tender/enquiryPeriod/durationInDays"]
 
-    neuralmodel= sklearn.neural_network.MLPRegressor(hidden_layer_sizes=(200,100,10,),
-        activation='relu', solver='adam', alpha=0.20, batch_size='auto',
+    neuralmodel= sklearn.neural_network.MLPRegressor(hidden_layer_sizes=(200,100,10,5,3,2),
+        activation='relu',loss= "poisson", solver='adam', alpha=0.20, batch_size='auto',
         learning_rate='adaptive', validation_fraction=0.1,random_state=0,
-        verbose=True, early_stopping=True,warm_start=True, max_iter=7)
+        verbose=True, early_stopping=True,warm_start=True, max_iter=100)
     
-    with open(r'model_saved_torch\modelneuralmber1.pkl', "rb") as input_file:
+    with open(r'model_saved_torch\modelneuralmber1po.pkl', "rb") as input_file:
       neuralmodel = pickle.load(input_file)    
 
 
     features=neuralmodel.feature_names_in_.tolist()
     X[[x for x in features if x not in X.columns]] = 0
     X=X[features]
-    if True:
+    if False:
         neuralmodel.fit(X,records["value_thousand_dolar"]) 
-        pickle.dump(neuralmodel, open(r'model_saved_torch\modelneuralmber1.pkl','wb'))
+        pickle.dump(neuralmodel, open(r'model_saved_torch\modelneuralmber1po.pkl','wb'))
 
     hat=pd.Series(neuralmodel.predict(X), name='predict')
     
