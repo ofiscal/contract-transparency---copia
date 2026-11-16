@@ -1,0 +1,26 @@
+# Demo / CI configuration: runs the full pipeline on synthetic data
+# (`ct demo-data` creates data/raw/demo_contracts.csv). Inherits everything
+# from secop_ii.yaml and overrides only what differs.
+extends: secop_ii.yaml
+
+paths:
+  raw_data: data/raw/demo_contracts.csv
+  processed_dir: data/processed/demo
+  outputs_dir: data/outputs/demo
+  registry_dir: models/registry_demo
+
+evaluation:
+  # Ground truth planted by the synthetic generator -> alert precision/recall.
+  label_column: synthetic_is_anomaly
+
+
+model:
+  num_boost_round: 600
+  early_stopping_rounds: 30
+
+drift:
+  min_new_rows_for_retrain: 2000
+
+public_data:
+  # Watermarks every output and the dashboard as synthetic.
+  synthetic: true

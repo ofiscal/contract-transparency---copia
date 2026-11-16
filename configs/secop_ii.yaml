@@ -1,0 +1,203 @@
+# ---------------------------------------------------------------------------
+# Default configuration: SECOP II - Contratos Electrónicos (datos.gov.co).
+# Dataset: https://www.datos.gov.co/Gastos-Gubernamentales/SECOP-II-Contratos-Electr-nicos/jbjy-vk9h
+#
+# Every key is validated by contract_transparency/config.py -- unknown keys fail.
+# Column names below follow the public dataset dictionary; verify them when
+# datos.gov.co publishes a new version of the schema (`ct validate` will tell you).
+# ---------------------------------------------------------------------------
+project: contract-transparency
+
+paths:
+  raw_data: data/raw/secop_ii_contratos.csv
+  processed_dir: data/processed
+  outputs_dir: data/outputs
+  registry_dir: models/registry
+  secrets_dir: .secrets
+
+schema:
+  id: ID Contrato
+  target: Valor del Contrato
+  text: [Descripcion del Proceso, Objeto del Contrato]
+  # Same categorical families used by the last legacy XGBoost models
+  # (recovered from legacy/artifacts/model_saved_torch/*.pkl).
+  categorical:
+    - Departamento
+    - Ciudad
+    - Orden
+    - Sector
+    - Rama
+    - Entidad Centralizada
+    - Estado Contrato
+    - Tipo de Contrato
+    - Modalidad de Contratacion
+    - Justificacion Modalidad de Contratacion
+  unspsc: Codigo de Categoria Principal
+  duration: Duración del contrato
+  signed_date: Fecha de Firma
+  start_date: Fecha de Inicio del Contrato
+  end_date: Fecha de Fin del Contrato
+  entity_name: Nombre Entidad
+  entity_id: Nit Entidad
+  supplier_id: Documento Proveedor
+  supplier_name: Proveedor Adjudicado
+  supplier_doc_type: TipoDocProveedor
+  supplier_group: Es Grupo         # consortium / temporary union flag (optional)
+  legal_rep_id: Identificación Representante Legal
+  modality: Modalidad de Contratacion
+  modality_justification: Justificacion Modalidad de Contratacion
+  entity_order: Orden
+  contract_type: Tipo de Contrato
+  days_added: Dias adicionados
+  n_bidders: null          # not in the Contratos table; available in "Procesos"
+  url: URLProceso
+
+privacy:
+  salt_env_var: CT_PII_SALT
+  # Removed right after loading. Columns that are absent are ignored.
+  drop_columns:
+    - Nombre Representante Legal
+    - Nacionalidad Representante Legal
+    - Domicilio Representante Legal
+    - Tipo de Identificación Representante Legal
+    - Género Representante Legal
+    - Nombre del banco
+    - Tipo de cuenta
+    - Número de cuenta
+    - Nombre Ordenador del gasto
+    - Tipo de Documento Ordenador del gasto
+    - Número de Documento Ordenador del gasto
+    - Nombre supervisor
+    - Tipo de documento supervisor
+    - Número de documento supervisor
+    - Nombre ordenador de pago
+    - Tipo de documento Ordenador de pago
+    - Número de documento Ordenador de pago
+  # Replaced by HMAC-SHA256 pseudonyms (still joinable, not reversible without the key).
+  pseudonymize_columns:
+    - Documento Proveedor
+    - Codigo Proveedor
+    - Identificación Representante Legal
+  redact_free_text: true
+  mask_natural_person_names: true
+
+data:
+  nrows: null              # e.g. 500000 to reproduce the legacy `subsetsize`
+  csv_sep: ","
+  encoding: utf-8
+  min_value: 1000
+  max_value: 1.0e+13
+  dayfirst: false
+
+features:
+  # -- categorical features (one-hot; rare categories grouped as "infrequent")
+  min_category_frequency: 20
+  max_categories: 300
+  add_unspsc_levels: true    # UNSPSC segment / family / class
+  add_person_type: true      # natural / juridica / desconocido as a feature
+  add_text_quantity: true    # quantity written in the description ("92 equipos", "3,5 km")
+  # -- stacked text price model: word + char TF-IDF -> Ridge (out-of-fold)
+  text_price_model: true
+  text_price_max_features: 100000
+  text_price_char_ngram_max: 5
+  text_price_folds: 5
+  text_price_alpha: 1.0
+  # -- word TF-IDF shared by the blended sparse Ridge and the optional embedders
+  text_max_features: 20000
+  text_ngram_max: 2
+  text_min_df: 3             # rare tokens (e.g. personal names) never become features
+  # -- optional extra dense text features for XGBoost (off: redundant, see docs/MODELING.md)
+  text_embedder: none        # none | tfidf_svd | tfidf | sentence_transformer
+  text_svd_components: 128   # only for tfidf_svd
+  sentence_model: sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2  # only for sentence_transformer
+
+model:
+  name: secop_price_model
+  type: xgboost
+  target_transform: log1p
+  params:
+    objective: "reg:pseudohubererror"
+    huber_slope: 1.0
+    eta: 0.05
+    max_depth: 8
+    subsample: 0.8
+    colsample_bytree: 0.8
+    min_child_weight: 5
+    reg_alpha: 0.2
+    reg_lambda: 1.0
+    tree_method: hist
+    seed: 24111996
+  num_boost_round: 2000
+  early_stopping_rounds: 50
+  blend_linear_weight: auto   # XGBoost + sparse Ridge blend; weight chosen on validation (0 = off)
+  segment_by: person_type     # one model per person type (natural / jurídica); null = single model
+  min_segment_train_rows: 1000
+  min_segment_valid_rows: 100
+
+evaluation:
+  split: temporal          # train on older contracts, test on the most recent ones
+  test_size: 0.2
+  valid_size: 0.15
+  random_state: 24111996
+
+promotion:
+  metric: mae_log
+  min_relative_improvement: 0.0
+  min_improvement_over_baseline: 0.05
+  min_r2_log: 0.2
+  auto_promote: true
+
+scoring:
+  calibration: by_group       # residual spread calibrated per contract type (global = v1.0)
+  tail_probability_alert: 0.01
+  min_prediction_floor: 1000000
+  tolerance: 0.8
+
+rules:
+  enabled: true
+  # Ley 996 de 2005 windows. VERIFY dates with the Registraduría before each cycle.
+  elections:
+    - {date: 2018-03-11, type: congress}
+    - {date: 2018-05-27, type: presidential, second_round: 2018-06-17}
+    - {date: 2019-10-27, type: territorial}
+    - {date: 2022-03-13, type: congress}
+    - {date: 2022-05-29, type: presidential, second_round: 2022-06-19}
+    - {date: 2023-10-29, type: territorial}
+    - {date: 2026-03-08, type: congress}
+    - {date: 2026-05-31, type: presidential, second_round: 2026-06-21}
+  restriction_months: 4
+  pre_restriction_window_days: 30
+  concurrent_contracts_threshold: 4
+  entity_spending_share_threshold: 0.3
+  supplier_share_threshold: 0.5
+  shared_legal_rep_threshold: 2
+  days_added_ratio_threshold: 0.5
+  splitting_window_days: 30
+  splitting_min_contracts: 3
+  duration_robust_z_threshold: 3.5
+
+drift:
+  psi_warning: 0.1
+  psi_retrain: 0.25
+  min_new_rows_for_retrain: 5000
+
+tracking:
+  enabled: false           # set true (and `pip install -e .[mlflow]`) to log runs to MLflow
+  tracking_uri: sqlite:///models/mlflow.db
+  experiment: contract-transparency
+
+output:
+  format: csv
+  csv_sep: ";"
+  passthrough_columns:
+    - ID Contrato
+    - Nombre Entidad
+    - Nit Entidad
+    - Departamento
+    - Ciudad
+    - Modalidad de Contratacion
+    - Tipo de Contrato
+    - Codigo de Categoria Principal
+    - Fecha de Firma
+    - Descripcion del Proceso
+

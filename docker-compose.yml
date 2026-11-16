@@ -1,0 +1,40 @@
+# Quick start:
+#   cp .env.example .env            # set CT_PII_SALT (see README)
+#   docker compose build
+#   docker compose run --rm ct demo-data --with-records
+#   docker compose run --rm ct run -c configs/demo.yaml
+#   CT_CONFIG=configs/demo.yaml docker compose up app     -> http://localhost:8501
+#
+# On Linux, files written to ./data and ./models belong to the UID below; set
+# CT_UID/CT_GID to your own (`id -u`, `id -g`) if they differ from 1000.
+x-common: &common
+  build:
+    context: .
+    args:
+      GIT_COMMIT: ${GIT_COMMIT:-unknown}
+  image: contract-transparency:latest
+  user: "${CT_UID:-1000}:${CT_GID:-1000}"
+  env_file:
+    - path: .env
+      required: false
+  environment:
+    CT_CONFIG: ${CT_CONFIG:-configs/secop_ii.yaml}
+  volumes:
+    - ./data:/app/data
+    - ./models:/app/models
+    - ./.secrets:/app/.secrets
+    - ./configs:/app/configs:ro   # edit configs without rebuilding
+
+services:
+  app:
+    <<: *common
+    ports:
+      - "127.0.0.1:8501:8501"     # local only: results contain personal data
+    command: ["app", "--address", "0.0.0.0", "--port", "8501"]
+    restart: unless-stopped
+
+  # One-off pipeline commands: docker compose run --rm ct <command> [options]
+  ct:
+    <<: *common
+    profiles: ["cli"]
+    command: ["--help"]
